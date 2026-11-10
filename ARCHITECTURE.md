@@ -18,7 +18,7 @@ flowchart LR
   U[Visitor's browser] -->|loads HTML, CSS, JS| GP[GitHub Pages<br/>static site]
   U -->|loads Lexend font| GF[Google Fonts]
   U -->|loads Three.js for the 3D hero| CDN[jsDelivr CDN]
-  U -->|domain only, e.g. acmecorp.com| G[Google DNS-over-HTTPS<br/>dns.google]
+  U -->|domain only, e.g. example.com| G[Google DNS-over-HTTPS<br/>dns.google]
   U -.->|fallback if Google fails| C[Cloudflare DNS-over-HTTPS<br/>cloudflare-dns.com]
 ```
 

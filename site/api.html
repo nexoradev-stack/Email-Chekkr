@@ -62,14 +62,14 @@
       <p class="prose">Every reply includes <code>RateLimit-Remaining</code> and <code>RateLimit-Reset</code>. Over the limit you get status 429 and a <code>Retry-After</code> header with the seconds to wait.</p>
 
       <h2>Check one email</h2>
-      <pre class="code"><code>curl "https://truvio-api.onrender.com/v1/verify?email=sam.lee@gmial.com"</code></pre>
+      <pre class="code"><code>curl "https://truvio-api.onrender.com/v1/verify?email=sample.user@gmial.com"</code></pre>
       <p class="prose">Reply:</p>
       <pre class="code"><code>{
-  "email": "sam.lee@gmial.com",
+  "email": "sample.user@gmial.com",
   "status": "risky",
   "score": 1,
-  "reason": "Possible typo — did you mean sam.lee@gmail.com?",
-  "suggestion": "sam.lee@gmail.com",
+  "reason": "Possible typo — did you mean sample.user@gmail.com?",
+  "suggestion": "sample.user@gmail.com",
   "checks": {
     "syntax": true,
     "domain": "gmial.com",
@@ -84,11 +84,11 @@
       <pre class="code"><code>curl -X POST https://truvio-api.onrender.com/v1/verify/batch \
   -H "Content-Type: application/json" \
   -H "Authorization: Bearer YOUR_API_KEY" \
-  -d '{"emails": ["jane.doe@acmecorp.com", "hello@mailinator.com"]}'</code></pre>
+  -d '{"emails": ["sample.user@example.com", "hello@mailinator.com"]}'</code></pre>
       <p class="prose">You get a <code>summary</code> with the count of each result, and <code>results</code> in the same order you sent them.</p>
 
       <h2>Check a domain</h2>
-      <pre class="code"><code>curl "https://truvio-api.onrender.com/v1/domain?domain=acmecorp.com"</code></pre>
+      <pre class="code"><code>curl "https://truvio-api.onrender.com/v1/domain?domain=example.com"</code></pre>
       <p class="prose">Tells you if the domain exists, accepts email, its mail servers, and whether it's a temporary inbox or a free provider like Gmail.</p>
 
       <h2>All endpoints</h2>

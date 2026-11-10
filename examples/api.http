@@ -1,18 +1,18 @@
 ### Check one email
-GET https://YOUR-API-ADDRESS/v1/verify?email=jane.doe@acmecorp.com
+GET https://YOUR-API-ADDRESS/v1/verify?email=sample.user@example.com
 
 ### Check one email (POST)
 POST https://YOUR-API-ADDRESS/v1/verify
 Content-Type: application/json
 
-{ "email": "sam.lee@gmial.com" }
+{ "email": "sample.user@gmial.com" }
 
 ### Check a batch (up to 50 without a key, 500 with one)
 POST https://YOUR-API-ADDRESS/v1/verify/batch
 Content-Type: application/json
 Authorization: Bearer YOUR-API-KEY
 
-{ "emails": ["jane.doe@acmecorp.com", "hello@mailinator.com", "info@github.com"] }
+{ "emails": ["sample.user@example.com", "hello@mailinator.com", "info@github.com"] }
 
 ### Check a domain
-GET https://YOUR-API-ADDRESS/v1/domain?domain=acmecorp.com
+GET https://YOUR-API-ADDRESS/v1/domain?domain=example.com

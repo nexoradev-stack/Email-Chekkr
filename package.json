@@ -12,7 +12,8 @@
     "start": "node server/index.js",
     "mcp": "node server/stdio.js",
     "serve": "python3 -m http.server 8080 --directory site",
-    "update:disposable": "node scripts/update-disposable.js"
+    "update:disposable": "node scripts/update-disposable.js",
+    "check:secrets": "node scripts/check-secrets.js"
   },
   "bin": {
     "truvio-mcp": "./server/stdio.js"

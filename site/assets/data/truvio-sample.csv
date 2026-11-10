@@ -1,6 +1,6 @@
 First Name,Last Name,Company,Email
-Jane,Doe,Example Co,jane.doe@gmail.com
-Sam,Lee,Example Co,sam.lee@gmial.com
+Sample,User,Example Co,sample.user@gmail.com
+Typo,Domain,Example Co,sample.user@gmial.com
 Info,Desk,Example Co,info@example.com
 Temp,User,Example Co,someone@mailinator.com
 Broken,Address,Example Co,broken@@example.com
