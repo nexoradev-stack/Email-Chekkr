@@ -46,7 +46,7 @@ export function toolDefinitions(batchMax) {
       description: 'Check a domain (or the part after @ in an address): whether it exists, accepts email, its mail servers, and whether it is disposable or a free provider.',
       inputSchema: {
         type: 'object',
-        properties: { domain: { type: 'string', description: 'A domain like acmecorp.com, or an email address' } },
+        properties: { domain: { type: 'string', description: 'A domain like example.com, or an email address' } },
         required: ['domain'],
         additionalProperties: false
       },

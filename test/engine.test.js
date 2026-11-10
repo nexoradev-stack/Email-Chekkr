@@ -14,7 +14,7 @@ import { parseCsv, findEmailColumn, toCsv, safeCell } from '../site/assets/js/en
 
 const ZONES = {
   'gmail.com': { MX: ['5 gmail-smtp-in.l.google.com.'] },
-  'acmecorp.com': { MX: ['10 mx1.acmecorp.com.', '20 mx2.acmecorp.com.'] },
+  'example.com': { MX: ['10 mx1.example.com.', '20 mx2.example.com.'] },
   'mailinator.com': { MX: ['10 mail.mailinator.com.'] },
   'gmial.com': { MX: [], A: ['1.2.3.4'] },
   'ail.com': { MX: ['10 mx.ail.com.'] },
@@ -37,7 +37,7 @@ const makeVerifier = () => createVerifier({ resolve: fakeResolve, disposable });
 // ---------- Syntax ----------
 
 test('syntax: accepts normal addresses', () => {
-  for (const email of ['jane@acmecorp.com', 'jane.doe+news@acmecorp.co.uk', "o'brien@acmecorp.com", '  jane@acmecorp.com  ']) {
+  for (const email of ['jane@example.com', 'sample.user+news@example.co.uk', "o'brien@example.com", '  jane@example.com  ']) {
     assert.equal(checkSyntax(email).ok, true, email);
   }
 });
@@ -45,14 +45,14 @@ test('syntax: accepts normal addresses', () => {
 test('syntax: rejects broken addresses with a reason', () => {
   const cases = {
     '': 'Empty value',
-    'janeacmecorp.com': 'Missing @',
-    'jane@@acmecorp.com': 'more than one @',
-    'jane doe@acmecorp.com': 'spaces',
-    '.jane@acmecorp.com': 'Dots',
-    'jane..doe@acmecorp.com': 'Dots',
-    'jane@acmecorp': 'extension',
+    'janeexample.com': 'Missing @',
+    'jane@@example.com': 'more than one @',
+    'jane doe@example.com': 'spaces',
+    '.jane@example.com': 'Dots',
+    'sample..user@example.com': 'Dots',
+    'jane@example': 'extension',
     'jane@acme_corp.com': 'not allowed',
-    'jane@acmecorp.c': 'extension'
+    'jane@example.c': 'extension'
   };
   for (const [email, reason] of Object.entries(cases)) {
     const r = checkSyntax(email);
@@ -62,7 +62,7 @@ test('syntax: rejects broken addresses with a reason', () => {
 });
 
 test('syntax: enforces length limits', () => {
-  assert.equal(checkSyntax(`${'a'.repeat(65)}@acmecorp.com`).ok, false);
+  assert.equal(checkSyntax(`${'a'.repeat(65)}@example.com`).ok, false);
   assert.equal(checkSyntax(`a@${'b'.repeat(250)}.com`).ok, false);
 });
 
@@ -79,12 +79,12 @@ test('typo: suggests popular providers and fixes extensions', () => {
   assert.equal(suggestDomain('gmail.co'), 'gmail.com');
   assert.equal(suggestDomain('hotmial.com'), 'hotmail.com');
   assert.equal(suggestDomain('yahooo.com'), 'yahoo.com');
-  assert.equal(suggestDomain('acmecorp.con'), 'acmecorp.com');
-  assert.equal(suggestDomain('acmecorp.ogr'), 'acmecorp.org');
+  assert.equal(suggestDomain('example.con'), 'example.com');
+  assert.equal(suggestDomain('example.ogr'), 'example.org');
 });
 
 test('typo: leaves correct domains alone', () => {
-  for (const d of ['gmail.com', 'acmecorp.com', 'mail.com', 'company.co', 'outlook.in.example']) {
+  for (const d of ['gmail.com', 'example.com', 'mail.com', 'company.co', 'outlook.in.example']) {
     assert.equal(suggestDomain(d), null, d);
   }
 });
@@ -102,8 +102,8 @@ test('dns: parses MX records', () => {
 });
 
 test('dns: classifies domains', async () => {
-  assert.equal((await checkMailDomain('acmecorp.com', fakeResolve)).result, 'mx');
-  assert.deepEqual((await checkMailDomain('acmecorp.com', fakeResolve)).mx, ['mx1.acmecorp.com', 'mx2.acmecorp.com']);
+  assert.equal((await checkMailDomain('example.com', fakeResolve)).result, 'mx');
+  assert.deepEqual((await checkMailDomain('example.com', fakeResolve)).mx, ['mx1.example.com', 'mx2.example.com']);
   assert.equal((await checkMailDomain('webonly.com', fakeResolve)).result, 'a-fallback');
   assert.equal((await checkMailDomain('nomail.com', fakeResolve)).result, 'null-mx');
   assert.equal((await checkMailDomain('parked.com', fakeResolve)).result, 'no-mail');
@@ -117,23 +117,23 @@ test('dns: DoH resolver reads answers, NXDOMAIN and falls back on failure', asyn
     calls.push(url);
     if (url.includes('dns.google')) throw new Error('blocked');
     if (url.includes('missing.com')) return { ok: true, json: async () => ({ Status: 3 }) };
-    return { ok: true, json: async () => ({ Status: 0, Answer: [{ type: 15, data: '10 mx.acmecorp.com.' }, { type: 5, data: 'cname.' }] }) };
+    return { ok: true, json: async () => ({ Status: 0, Answer: [{ type: 15, data: '10 mx.example.com.' }, { type: 5, data: 'cname.' }] }) };
   };
   const resolve = createDohResolver({ fetchImpl, timeoutMs: 1000 });
-  assert.deepEqual(await resolve('acmecorp.com', 'MX'), { status: 'ok', records: ['10 mx.acmecorp.com.'] });
+  assert.deepEqual(await resolve('example.com', 'MX'), { status: 'ok', records: ['10 mx.example.com.'] });
   assert.equal((await resolve('missing.com', 'MX')).status, 'nxdomain');
   assert.ok(calls.some((u) => u.includes('cloudflare-dns.com')), 'falls back to Cloudflare');
 });
 
 test('dns: DoH resolver reports an error when every provider fails', async () => {
   const resolve = createDohResolver({ fetchImpl: async () => { throw new Error('offline'); }, timeoutMs: 100 });
-  assert.equal((await resolve('acmecorp.com', 'MX')).status, 'error');
+  assert.equal((await resolve('example.com', 'MX')).status, 'error');
 });
 
 // ---------- Verifier ----------
 
 test('verify: valid personal address', async () => {
-  const r = await makeVerifier().verify('jane@acmecorp.com');
+  const r = await makeVerifier().verify('jane@example.com');
   assert.equal(r.status, STATUS.VALID);
   assert.equal(r.score, 95);
   assert.equal(r.checks.mx, 'mx');
@@ -153,13 +153,13 @@ test('verify: disposable domain is risky', async () => {
 });
 
 test('verify: role address is risky', async () => {
-  const r = await makeVerifier().verify('info@acmecorp.com');
+  const r = await makeVerifier().verify('info@example.com');
   assert.equal(r.status, STATUS.RISKY);
   assert.equal(r.checks.role, true);
 });
 
 test('verify: role detection ignores +tags', async () => {
-  const r = await makeVerifier().verify('sales+leads@acmecorp.com');
+  const r = await makeVerifier().verify('sales+leads@example.com');
   assert.equal(r.checks.role, true);
 });
 
@@ -184,7 +184,7 @@ test('verify: domain without MX but online is risky', async () => {
 
 test('verify: invalid cases', async () => {
   const v = makeVerifier();
-  assert.equal((await v.verify('broken@@acmecorp.com')).status, STATUS.INVALID);
+  assert.equal((await v.verify('broken@@example.com')).status, STATUS.INVALID);
   assert.equal((await v.verify('jane@missing.com')).status, STATUS.INVALID);
   assert.equal((await v.verify('jane@nomail.com')).status, STATUS.INVALID);
   assert.equal((await v.verify('jane@parked.com')).status, STATUS.INVALID);
@@ -202,14 +202,14 @@ test('verify: each domain is looked up once', async () => {
   let lookups = 0;
   const counting = (name, type) => { lookups += 1; return fakeResolve(name, type); };
   const v = createVerifier({ resolve: counting, disposable });
-  await Promise.all(['a@acmecorp.com', 'b@acmecorp.com', 'c@acmecorp.com'].map((e) => v.verify(e)));
+  await Promise.all(['a@example.com', 'b@example.com', 'c@example.com'].map((e) => v.verify(e)));
   assert.equal(lookups, 1);
 });
 
 test('disposable: matches subdomains of listed domains', () => {
   assert.equal(isDisposable('mailinator.com', disposable), true);
   assert.equal(isDisposable('eu.mailinator.com', disposable), true);
-  assert.equal(isDisposable('acmecorp.com', disposable), false);
+  assert.equal(isDisposable('example.com', disposable), false);
 });
 
 test('disposable: the bundled list loads and includes known services', () => {
@@ -245,18 +245,18 @@ test('pool: stops when cancelled', async () => {
 // ---------- CSV ----------
 
 test('csv: parses quotes, commas, line breaks and a BOM', () => {
-  const rows = parseCsv('﻿Name,Email\r\n"Doe, Jane",jane@acmecorp.com\n"Line\nbreak","say ""hi"""\n\n');
-  assert.deepEqual(rows, [['Name', 'Email'], ['Doe, Jane', 'jane@acmecorp.com'], ['Line\nbreak', 'say "hi"']]);
+  const rows = parseCsv('﻿Name,Email\r\n"Doe, Jane",jane@example.com\n"Line\nbreak","say ""hi"""\n\n');
+  assert.deepEqual(rows, [['Name', 'Email'], ['Doe, Jane', 'jane@example.com'], ['Line\nbreak', 'say "hi"']]);
 });
 
 test('csv: finds the email column by header', () => {
-  assert.deepEqual(findEmailColumn([['First Name', 'Email Address'], ['Jane', 'jane@acmecorp.com']]), { index: 1, hasHeader: true });
-  assert.deepEqual(findEmailColumn([['Name', 'Work Email'], ['Jane', 'jane@acmecorp.com']]), { index: 1, hasHeader: true });
+  assert.deepEqual(findEmailColumn([['First Name', 'Email Address'], ['Jane', 'jane@example.com']]), { index: 1, hasHeader: true });
+  assert.deepEqual(findEmailColumn([['Name', 'Work Email'], ['Jane', 'jane@example.com']]), { index: 1, hasHeader: true });
 });
 
 test('csv: finds the email column without a header', () => {
-  assert.deepEqual(findEmailColumn([['Jane', 'jane@acmecorp.com'], ['Sam', 'sam@acmecorp.com']]), { index: 1, hasHeader: false });
-  assert.deepEqual(findEmailColumn([['Name', 'Contact'], ['Jane', 'jane@acmecorp.com']]), { index: 1, hasHeader: true });
+  assert.deepEqual(findEmailColumn([['Jane', 'jane@example.com'], ['Sam', 'sam@example.com']]), { index: 1, hasHeader: false });
+  assert.deepEqual(findEmailColumn([['Name', 'Contact'], ['Jane', 'jane@example.com']]), { index: 1, hasHeader: true });
 });
 
 test('csv: reports no email column', () => {
@@ -267,7 +267,7 @@ test('csv: reports no email column', () => {
 test('csv: output is spreadsheet-safe', () => {
   assert.equal(safeCell('=HYPERLINK("x")'), '\'=HYPERLINK("x")');
   assert.equal(safeCell('+1'), "'+1");
-  assert.equal(safeCell('jane@acmecorp.com'), 'jane@acmecorp.com');
+  assert.equal(safeCell('jane@example.com'), 'jane@example.com');
   assert.equal(toCsv([['a', 'b,c'], ['say "hi"', '=1+1']]), 'a,"b,c"\r\n"say ""hi""",\'=1+1');
 });
 

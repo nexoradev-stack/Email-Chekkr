@@ -11,7 +11,7 @@ import { createRateLimiter } from '../server/rate-limit.js';
 import { createNodeResolver } from '../server/node-dns.js';
 
 const ZONES = {
-  'acmecorp.com': { MX: ['10 mx1.acmecorp.com', '20 mx2.acmecorp.com'] },
+  'example.com': { MX: ['10 mx1.example.com', '20 mx2.example.com'] },
   'gmail.com': { MX: ['5 gmail-smtp-in.l.google.com'] },
   'mailinator.com': { MX: ['10 mail.mailinator.com'] },
   'nomail.example': { MX: ['0 .'] }
@@ -93,10 +93,10 @@ test('node resolver: maps answers and errors', async () => {
 
 test('service: domain check', async () => {
   const service = createService({ resolve: fakeResolve, disposable: new Set(['mailinator.com']) });
-  const acme = await service.checkDomain('jane@AcmeCorp.com');
-  assert.equal(acme.domain, 'acmecorp.com');
+  const acme = await service.checkDomain('jane@Example.com');
+  assert.equal(acme.domain, 'example.com');
   assert.equal(acme.accepts_email, true);
-  assert.deepEqual(acme.mx, ['mx1.acmecorp.com', 'mx2.acmecorp.com']);
+  assert.deepEqual(acme.mx, ['mx1.example.com', 'mx2.example.com']);
   assert.equal((await service.checkDomain('mailinator.com')).disposable, true);
   assert.equal((await service.checkDomain('gmail.com')).free_provider, true);
   assert.equal((await service.checkDomain('nomail.example')).mail, 'null-mx');
@@ -120,7 +120,7 @@ test('API: health, version, home and 404', async () => {
 test('API: verify one email (GET and POST)', async () => {
   const api = await startApi();
   try {
-    const res = await api.get('/v1/verify?email=' + encodeURIComponent('jane@acmecorp.com'));
+    const res = await api.get('/v1/verify?email=' + encodeURIComponent('jane@example.com'));
     assert.equal(res.status, 200);
     assert.equal(res.headers.get('ratelimit-limit'), '30');
     assert.equal(res.headers.get('cache-control'), 'no-store');
@@ -142,12 +142,12 @@ test('API: verify one email (GET and POST)', async () => {
 test('API: batch keeps order, counts statuses and applies limits', async () => {
   const api = await startApi();
   try {
-    const emails = ['jane@acmecorp.com', 'bad@@x', 'temp@mailinator.com', 'x@slow.example'];
+    const emails = ['jane@example.com', 'bad@@x', 'temp@mailinator.com', 'x@slow.example'];
     const body = await (await api.post('/v1/verify/batch', { emails })).json();
     assert.deepEqual(body.results.map((r) => r.status), ['valid', 'invalid', 'risky', 'unknown']);
     assert.deepEqual(body.summary, { total: 4, valid: 1, risky: 1, invalid: 1, unknown: 1 });
 
-    const tooMany = Array.from({ length: 51 }, (_, i) => `u${i}@acmecorp.com`);
+    const tooMany = Array.from({ length: 51 }, (_, i) => `u${i}@example.com`);
     const blocked = await api.post('/v1/verify/batch', { emails: tooMany });
     assert.equal(blocked.status, 400);
     assert.equal((await blocked.json()).error.code, 'batch_too_large');
@@ -167,7 +167,7 @@ test('API: batch keeps order, counts statuses and applies limits', async () => {
 test('API: domain endpoint', async () => {
   const api = await startApi();
   try {
-    const body = await (await api.get('/v1/domain?domain=acmecorp.com')).json();
+    const body = await (await api.get('/v1/domain?domain=example.com')).json();
     assert.equal(body.accepts_email, true);
     assert.equal((await api.get('/v1/domain')).status, 400);
   } finally {
@@ -178,13 +178,13 @@ test('API: domain endpoint', async () => {
 test('API: keys, public access switch and bad requests', async () => {
   const api = await startApi({ TRUVIO_PUBLIC_ACCESS: 'false' });
   try {
-    const noKey = await api.get('/v1/verify?email=a@acmecorp.com');
+    const noKey = await api.get('/v1/verify?email=a@example.com');
     assert.equal(noKey.status, 401);
     assert.equal((await noKey.json()).error.code, 'api_key_required');
-    const wrongKey = await api.get('/v1/verify?email=a@acmecorp.com', { 'x-api-key': 'wrong' });
+    const wrongKey = await api.get('/v1/verify?email=a@example.com', { 'x-api-key': 'wrong' });
     assert.equal(wrongKey.status, 401);
     assert.equal((await wrongKey.json()).error.code, 'invalid_api_key');
-    const ok = await api.get('/v1/verify?email=a@acmecorp.com', { 'x-api-key': KEY });
+    const ok = await api.get('/v1/verify?email=a@example.com', { 'x-api-key': KEY });
     assert.equal(ok.status, 200);
 
     const notJson = await fetch(api.base + '/v1/verify', { method: 'POST', headers: { 'x-api-key': KEY, 'content-type': 'text/plain' }, body: 'a' });
@@ -200,9 +200,9 @@ test('API: keys, public access switch and bad requests', async () => {
 test('API: rate limit returns 429 with Retry-After', async () => {
   const api = await startApi({ TRUVIO_PUBLIC_RATE_LIMIT: '2' });
   try {
-    await api.get('/v1/verify?email=a@acmecorp.com');
-    await api.get('/v1/verify?email=a@acmecorp.com');
-    const third = await api.get('/v1/verify?email=a@acmecorp.com');
+    await api.get('/v1/verify?email=a@example.com');
+    await api.get('/v1/verify?email=a@example.com');
+    const third = await api.get('/v1/verify?email=a@example.com');
     assert.equal(third.status, 429);
     assert.ok(Number(third.headers.get('retry-after')) >= 1);
     assert.equal((await third.json()).error.code, 'rate_limited');
@@ -238,12 +238,12 @@ test('MCP handler: initialize, list tools, call tools, errors', async () => {
   const list = await handle({ jsonrpc: '2.0', id: 2, method: 'tools/list' });
   assert.deepEqual(list.result.tools.map((t) => t.name), ['verify_email', 'verify_emails_batch', 'check_domain']);
 
-  const one = await handle({ jsonrpc: '2.0', id: 3, method: 'tools/call', params: { name: 'verify_email', arguments: { email: 'jane@acmecorp.com' } } });
+  const one = await handle({ jsonrpc: '2.0', id: 3, method: 'tools/call', params: { name: 'verify_email', arguments: { email: 'jane@example.com' } } });
   assert.equal(one.result.structuredContent.status, 'valid');
   assert.equal(one.result.isError, false);
   assert.match(one.result.content[0].text, /"status": "valid"/);
 
-  const batch = await handle({ jsonrpc: '2.0', id: 4, method: 'tools/call', params: { name: 'verify_emails_batch', arguments: { emails: ['a@acmecorp.com', 'b@mailinator.com'] } } });
+  const batch = await handle({ jsonrpc: '2.0', id: 4, method: 'tools/call', params: { name: 'verify_emails_batch', arguments: { emails: ['a@example.com', 'b@mailinator.com'] } } });
   assert.equal(batch.result.structuredContent.summary.risky, 1);
 
   const tooBig = await handle({ jsonrpc: '2.0', id: 5, method: 'tools/call', params: { name: 'verify_emails_batch', arguments: { emails: ['a@a.com', 'b@b.com', 'c@c.com', 'd@d.com'] } } });

@@ -60,7 +60,7 @@ address ─► format check ─► typo check ─► team-address check ─► d
                      result (valid / risky / invalid / unknown) + score + reason
 ```
 
-- **Privacy:** CSV files are read locally and never uploaded. Only the domain part (e.g. `acmecorp.com`) is sent to the public DNS service — never the full address.
+- **Privacy:** CSV files are read locally and never uploaded. Only the domain part (e.g. `example.com`) is sent to the public DNS service — never the full address.
 - **Speed:** each domain is looked up once per session, and bulk checks run 8 at a time.
 - **Safe downloads:** results are added as new columns (`truvio_status`, `truvio_score`, `truvio_reason`, `truvio_suggestion`). Cells that start with `=`, `+`, `-` or `@` are escaped so spreadsheets don't run them as formulas.
 
@@ -109,7 +109,7 @@ A small Node.js server (no npm packages) that runs the same checks for apps, scr
 
 ```bash
 npm start                      # http://localhost:8787
-curl "http://localhost:8787/v1/verify?email=sam.lee@gmial.com"
+curl "http://localhost:8787/v1/verify?email=sample.user@gmial.com"
 ```
 
 | Endpoint | What it does |
@@ -138,6 +138,13 @@ Tools: `verify_email`, `verify_emails_batch`, `check_domain`.
 
 **Render (free plan):** Render → New → Blueprint → pick this repo. It uses [`render.yaml`](render.yaml) and the [`Dockerfile`](Dockerfile), and creates an API key for you (Environment tab).
 Anything that runs Docker or Node 20+ works too (Railway, Fly.io, Google Cloud Run).
+
+### Keys and secrets
+
+- API keys live **only** in the host's environment settings (on Render: truvio-api → Environment → `TRUVIO_API_KEYS`). They are never stored in this repository.
+- `.env` files are ignored by git. `.env.example` lists the settings with no real values.
+- Every push and pull request runs `npm run check:secrets`, which fails if a key, token or personal email address is found.
+- All email addresses in the code, docs and tests are made-up samples.
 
 ---
 
