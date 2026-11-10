@@ -1,0 +1,77 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>About — Truvio</title>
+  <meta name="description" content="What Truvio is, how it checks addresses, and who builds it.">
+  <meta name="theme-color" content="#5b4bdb">
+  <script>try{var t=localStorage.getItem('truvio-theme');if(t==='light'||t==='dark')document.documentElement.setAttribute('data-theme',t)}catch(e){}</script>
+  <link rel="icon" href="assets/img/favicon.svg" type="image/svg+xml">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Lexend:wght@300;350;400;450;500;550;600;650;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="assets/css/styles.css">
+  <script type="module" src="assets/js/app.js"></script>
+</head>
+<body>
+  <a class="skip" href="#main">Skip to content</a>
+
+  <header class="site-header">
+    <div class="wrap">
+      <a class="wordmark" href="./" aria-label="Truvio home">tru<svg class="check" viewBox="0 0 24 24" aria-hidden="true"><path d="M3.5 12.5l5.5 5.5L20.5 5" fill="none" stroke-width="4" stroke-linecap="round" stroke-linejoin="round"/></svg>io</a>
+      <nav class="nav" id="site-nav" aria-label="Main">
+        <a href="./#how">How it works</a>
+        <a href="./#bulk">Check a list</a>
+        <a href="./#results">Results</a>
+        <a href="pricing.html">Pricing</a>
+        <a href="api.html">API</a>
+        <a href="about.html" aria-current="page">About</a>
+      </nav>
+      <div class="header-actions">
+        <button class="theme-toggle" type="button" aria-label="Switch between light and dark mode">
+          <svg class="moon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M21 12.8A9 9 0 1 1 11.2 3a7 7 0 0 0 9.8 9.8z"/></svg>
+          <svg class="sun" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="4"/><path d="M12 2v2M12 20v2M4.9 4.9l1.4 1.4M17.7 17.7l1.4 1.4M2 12h2M20 12h2M4.9 19.1l1.4-1.4M17.7 6.3l1.4-1.4"/></svg>
+        </button>
+        <a class="btn btn-primary btn-sm" href="./#check">Check an email</a>
+        <button class="menu-toggle" type="button" aria-expanded="false" aria-controls="site-nav">Menu</button>
+      </div>
+    </div>
+  </header>
+
+  <main id="main" class="page">
+    <div class="wrap">
+      <h1>About Truvio</h1>
+      <div class="prose">
+        <p>Truvio helps you clean an email list before you send to it. Fewer bounces protect your sender reputation, so more of your emails reach real inboxes.</p>
+        <h2>How it checks an address</h2>
+        <ol>
+          <li>Reads the address and checks it's written correctly.</li>
+          <li>Looks up the domain to see that it exists and has a mail server.</li>
+          <li>Compares the domain with a list of over 10,000 temporary inbox services.</li>
+          <li>Flags team addresses like info@ and support@, and suggests fixes for common typos.</li>
+          <li>Gives the address a result (valid, risky, invalid or unknown) and a score from 0 to 100.</li>
+        </ol>
+        <h2>What makes it different</h2>
+        <p>Your list never leaves your computer. Checks run in your browser, and only the domain part of each address (like acmecorp.com) is looked up through a public DNS service.</p>
+        <h2>Who builds it</h2>
+        <p>Truvio is an independent project, built with help from Claude (by Anthropic) and Cursor. The code is on <a href="https://github.com/nexoradev-stack/Truvio-Email-verification">GitHub</a>.</p>
+      </div>
+    </div>
+  </main>
+
+  <footer class="site-footer">
+    <div class="wrap">
+      <span>© <span data-year>2026</span> Truvio — Email verification</span>
+      <nav aria-label="Footer">
+        <a href="pricing.html">Pricing</a>
+        <a href="api.html">API</a>
+        <a href="about.html">About</a>
+        <a href="contact.html">Contact</a>
+        <a href="privacy.html">Privacy</a>
+        <a href="terms.html">Terms</a>
+      </nav>
+    </div>
+  </footer>
+</body>
+</html>
