@@ -1,0 +1,69 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1280" height="360" viewBox="0 0 1280 360" role="img" aria-labelledby="t d">
+  <title id="t">Truvio — Email verification</title>
+  <desc id="d">Clean lists. Fewer bounces. Envelopes pass through a scanning ring and come out marked valid, risky or invalid.</desc>
+  <defs>
+    <linearGradient id="bg" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0" stop-color="#0d0f22"/>
+      <stop offset="1" stop-color="#1e1b4f"/>
+    </linearGradient>
+    <radialGradient id="glow" cx="0.72" cy="0.5" r="0.45">
+      <stop offset="0" stop-color="#8b7cff" stop-opacity="0.35"/>
+      <stop offset="1" stop-color="#8b7cff" stop-opacity="0"/>
+    </radialGradient>
+    <linearGradient id="ring" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#b3a8ff"/>
+      <stop offset="1" stop-color="#6b5ae8"/>
+    </linearGradient>
+    <g id="env">
+      <rect x="-44" y="-29" width="88" height="58" rx="5"/>
+      <path d="M-42 -26 L0 4 L42 -26" fill="none" stroke-width="2.5" stroke-linejoin="round"/>
+    </g>
+  </defs>
+
+  <rect width="1280" height="360" rx="28" fill="url(#bg)"/>
+  <rect width="1280" height="360" rx="28" fill="url(#glow)"/>
+
+  <!-- Wordmark -->
+  <g font-family="Lexend, 'Segoe UI', Helvetica, Arial, sans-serif">
+    <text x="80" y="150" fill="#ffffff" font-size="92" font-weight="700" textLength="142" lengthAdjust="spacingAndGlyphs">tru</text>
+    <path d="M232 116 l16 17 l33 -42" fill="none" stroke="#3ddc97" stroke-width="13" stroke-linecap="round" stroke-linejoin="round"/>
+    <text x="280" y="150" fill="#ffffff" font-size="92" font-weight="700" textLength="72" lengthAdjust="spacingAndGlyphs">io</text>
+    <text x="84" y="200" fill="#bcc0e3" font-size="30" font-weight="400">Email verification</text>
+    <text x="84" y="252" fill="#ffffff" font-size="24" font-weight="600">Clean lists. Fewer bounces.</text>
+
+    <!-- Chips -->
+    <g font-size="16" font-weight="500">
+      <rect x="84" y="276" width="104" height="34" rx="17" fill="#8b7cff" fill-opacity="0.18" stroke="#8b7cff" stroke-opacity="0.6"/>
+      <text x="136" y="298" fill="#d9d4ff" text-anchor="middle">Website</text>
+      <rect x="198" y="276" width="104" height="34" rx="17" fill="#3ddc97" fill-opacity="0.14" stroke="#3ddc97" stroke-opacity="0.6"/>
+      <text x="250" y="298" fill="#bff3dc" text-anchor="middle">REST API</text>
+      <rect x="312" y="276" width="168" height="34" rx="17" fill="#f2b544" fill-opacity="0.14" stroke="#f2b544" stroke-opacity="0.6"/>
+      <text x="396" y="298" fill="#fbe3b4" text-anchor="middle">MCP for AI tools</text>
+    </g>
+  </g>
+
+  <!-- Scene: envelopes travel through the scanning ring -->
+  <line x1="600" y1="232" x2="1230" y2="232" stroke="#3a3f75" stroke-width="2" stroke-dasharray="7 7"/>
+
+  <!-- Before the ring: unchecked -->
+  <g fill="#1c2048" stroke="#5b618f" stroke-width="2.5">
+    <use href="#env" transform="translate(640 196) scale(0.82)" opacity="0.55"/>
+    <use href="#env" transform="translate(740 190) scale(0.9)" opacity="0.8"/>
+    <use href="#env" transform="translate(842 184)"/>
+  </g>
+
+  <!-- Ring -->
+  <ellipse cx="930" cy="180" rx="34" ry="96" fill="none" stroke="#8b7cff" stroke-opacity="0.25" stroke-width="26"/>
+  <ellipse cx="930" cy="180" rx="34" ry="96" fill="none" stroke="url(#ring)" stroke-width="10"/>
+
+  <!-- After the ring: checked -->
+  <g stroke-width="2.5">
+    <g fill="#16324a" stroke="#3ddc97"><use href="#env" transform="translate(1022 180)"/></g>
+    <circle cx="1048" cy="194" r="8" fill="#3ddc97"/>
+    <g fill="#3a2f22" stroke="#f2b544"><use href="#env" transform="translate(1122 176) scale(0.94)"/></g>
+    <circle cx="1146" cy="189" r="7.5" fill="#f2b544"/>
+    <g fill="#3a2230" stroke="#ff6b5e" opacity="0.75"><use href="#env" transform="translate(1062 290) rotate(14) scale(0.8)"/></g>
+    <circle cx="1080" cy="306" r="6.5" fill="#ff6b5e" opacity="0.75"/>
+    <g fill="#16324a" stroke="#3ddc97" opacity="0.6"><use href="#env" transform="translate(1214 172) scale(0.86)"/></g>
+  </g>
+</svg>
