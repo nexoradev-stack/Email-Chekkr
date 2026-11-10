@@ -1,0 +1,32 @@
+# Truvio API — Render Blueprint (free plan works).
+# In Render: New → Blueprint → pick this repository. Render builds the Dockerfile and gives you an https://….onrender.com address.
+# Nothing here deploys by itself.
+
+services:
+  - type: web
+    name: truvio-api
+    runtime: docker
+    plan: free
+    dockerfilePath: ./Dockerfile
+    dockerContext: .
+    branch: main
+    healthCheckPath: /health
+    autoDeploy: true
+    envVars:
+      - key: TRUVIO_PUBLIC_ACCESS
+        value: "true"
+      - key: TRUVIO_CORS_ORIGINS
+        value: https://nexoradev-stack.github.io
+      - key: TRUVIO_PUBLIC_RATE_LIMIT
+        value: "30"
+      - key: TRUVIO_PUBLIC_BATCH_MAX
+        value: "50"
+      - key: TRUVIO_KEY_RATE_LIMIT
+        value: "120"
+      - key: TRUVIO_KEY_BATCH_MAX
+        value: "500"
+      - key: TRUVIO_DNS_SERVERS
+        value: 1.1.1.1,8.8.8.8
+      # One API key is generated for you; see it under Environment in Render. Add more separated by commas.
+      - key: TRUVIO_API_KEYS
+        generateValue: true

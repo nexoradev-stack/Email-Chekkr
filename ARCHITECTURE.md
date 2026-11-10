@@ -1,10 +1,15 @@
 # Truvio — Architecture
 
-This document explains how Truvio works today (Phase 1) and how it is planned to grow (Phases 2 and 3).
+Truvio has two parts that share one checking engine:
+
+1. **The website** — static, on GitHub Pages; checks run in the visitor's browser.
+2. **The API server** — a small Node.js server with a REST API and an MCP server for AI tools; checks run on the server with Node's built-in DNS.
+
+This document covers both, and what comes next (accounts and payments).
 
 ---
 
-## 1. Phase 1 — browser-only (current)
+## 1. The website (browser-only)
 
 Truvio is a **static website**. There is no Truvio server. All checks run in the visitor's browser, and the site is hosted for free on GitHub Pages.
 
@@ -97,18 +102,88 @@ flowchart LR
   M --> P[Deploy site workflow<br/>publishes site/ to GitHub Pages]
 ```
 
-- `npm test` runs 31 tests with no network (DNS is faked).
+- `npm test` runs 45 tests (engine, API, MCP) with no network (DNS is faked).
 - `npm run update:disposable` refreshes the disposable domain list.
 
-### Limits of Phase 1
+### Limits of the website
 
 - Domain-level checks only. Truvio doesn't connect to mail servers (no SMTP mailbox check), so "valid" means the address and domain look deliverable.
 - Speed depends on the visitor's connection and the public DNS services.
-- No usage limits are enforced, because there is no server.
+- The website itself has no usage limits (there is no server behind it). The API has limits — see below.
 
 ---
 
-## 2. Phase 2 — accounts, credits and payments (planned)
+## 2. The API server (built)
+
+The same engine, running on a server, so apps, scripts and AI tools can check emails. Like Neel's tool, it uses **Node's built-in `dns` module** — no third-party verification API and no npm packages.
+
+```mermaid
+flowchart LR
+  App[Your app or script] -->|REST + optional API key| S
+  AI[AI tools<br/>Claude, Cursor…] -->|MCP over HTTP + API key| S
+  Local[AI app on your computer] -->|MCP over stdio| L[server/stdio.js]
+  subgraph S[Truvio API server — server/index.js]
+    R[Routes + limits<br/>app.js, rate-limit.js] --> Svc[service.js]
+    M[MCP handler<br/>mcp.js] --> Svc
+  end
+  L --> Svc2[service.js]
+  Svc --> Eng[Shared engine<br/>site/assets/js/engine]
+  Svc2 --> Eng
+  Eng --> D[Node DNS resolver<br/>node-dns.js]
+  D --> NS[DNS servers<br/>1.1.1.1, 8.8.8.8]
+```
+
+### Endpoints
+
+| Endpoint | What it does |
+|---|---|
+| `GET /v1/verify?email=` · `POST /v1/verify` | Check one address |
+| `POST /v1/verify/batch` | Check a list; results keep the input order, plus a summary |
+| `GET /v1/domain?domain=` | Check a domain: exists, accepts email, MX hosts, disposable, free provider |
+| `POST /mcp` | MCP (JSON-RPC) for AI tools — tools `verify_email`, `verify_emails_batch`, `check_domain` |
+| `GET /health` · `GET /version` · `GET /` | Health check, version, endpoint list |
+
+### Access and limits
+
+| | Without a key | With an API key |
+|---|---|---|
+| Requests per minute | 30 per IP address | 120 per key |
+| Emails per batch | 50 | 500 |
+| MCP over HTTP | No | Yes |
+
+All numbers are settings (`.env.example`). `TRUVIO_PUBLIC_ACCESS=false` makes a key required everywhere. Keys are sent as `Authorization: Bearer <key>` or `X-API-Key`, and compared in constant time.
+
+### Server modules
+
+| File | Job |
+|---|---|
+| `server/index.js` | Starts the HTTP server, graceful shutdown |
+| `server/app.js` | Routes, API keys, CORS, JSON body limits, error format, request log (path only) |
+| `server/rate-limit.js` | Per-IP / per-key limits (in memory) |
+| `server/service.js` | `verifyEmail`, `verifyEmails` (10 at a time), `checkDomain` |
+| `server/node-dns.js` | Node DNS lookups → same `{status, records}` shape as the browser resolver |
+| `server/mcp.js` | MCP tools and JSON-RPC handling |
+| `server/stdio.js` | MCP over stdin/stdout for local AI apps |
+| `server/config.js` | Settings from environment variables |
+
+### Safety and privacy
+
+- Email addresses are never logged or stored. Logs hold method, path, status and time only.
+- Domain results are cached for 10 minutes (up to 50,000 domains) to keep it fast and polite to DNS servers.
+- Request bodies are limited to 1 MB; only JSON is accepted on POST.
+- Browsers can call the API only from allowed sites (CORS list).
+- No mailbox (SMTP) checks — same as the website.
+
+### Hosting
+
+- `Dockerfile` — Node 22 Alpine image, runs as a non-root user, built-in health check.
+- `render.yaml` — Render Blueprint (free plan works, same host as Neel's). It creates one API key automatically.
+- Runs anywhere Docker or Node 20+ runs (Railway, Fly.io, Google Cloud Run…).
+- Limits are kept in memory, so run **one** instance until Phase 3 moves them to a shared store.
+
+---
+
+## 3. Next — accounts, credits and payments (planned)
 
 Pricing is not decided yet. The site shows "Free during early access".
 
@@ -124,34 +199,25 @@ flowchart LR
 
 - A small backend handles sign-in, credit balances and payments.
 - Razorpay for payments (Stripe India is invite-only).
-- Free checks stay in the browser; paid bulk checks move to the server so limits and credits can be enforced.
-- The same engine modules are reused on the server (they already run in Node).
+- Free checks stay in the browser; paid bulk checks use the API so credits can be counted.
+- API keys move from an environment variable to the database, with a page to create and revoke them.
+- Rate-limit counters move to a shared store so the API can run on several servers.
 
-## 3. Phase 3 — API keys and MCP server (planned)
-
-```mermaid
-flowchart LR
-  Dev[Developer app] -->|API key| API[Truvio API]
-  AI[AI tools<br/>Claude, Cursor…] -->|MCP| MCP[Truvio MCP server]
-  MCP --> API
-  API --> Eng[Shared engine]
-  API --> DB[(Usage and credits)]
-```
-
-- REST API with API keys and per-key rate limits.
-- An MCP server so AI assistants can verify emails directly.
-- Optional later: SMTP mailbox checks, if the hosting cost makes sense.
+Optional later: SMTP mailbox checks, if the hosting cost makes sense.
 
 ---
 
 ## For reference: how Neel's tool (MailSure) differs
 
-| | Neel's tool | Truvio Phase 1 |
+| | Neel's tool (MailSure) | Truvio |
 |---|---|---|
-| Where checks run | His own server (Node's built-in `dns` module) | Visitor's browser (public DNS-over-HTTPS) |
+| Where checks run | His own server (Node's built-in `dns` module) | Website: visitor's browser. API: our server (Node's built-in `dns` module) |
 | Third-party verification API | None | None |
 | Bulk limit (website) | 50 emails, 2 MB | 10,000 rows, 5 MB |
-| API rate limit | 30 req/min (site), 120 req/min (main API) | No API yet (Phase 3) |
-| DNS timeout | 5,000 ms | Per-lookup timeout with Cloudflare fallback |
+| API rate limit | 30 req/min (site), 120 req/min (main API) | 30 req/min without a key, 120 req/min with a key |
+| API batch size | 50 (site), up to 500 (main API) | 50 without a key, 500 with a key |
+| MCP for AI tools | Yes (HTTP and stdio) | Yes (HTTP and stdio) |
+| npm packages | Express, MCP SDK, SQLite, Zod… | None (Node built-ins only) |
+| DNS timeout | 5,000 ms | 5,000 ms, 2 tries (configurable) |
 
 There is no 5,000-per-day or per-month allowance in his tool; the "5000" in his code is the DNS timeout in milliseconds.

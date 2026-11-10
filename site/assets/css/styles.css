@@ -482,6 +482,24 @@ caption { caption-side: bottom; padding: 10px 14px; text-align: left; color: var
 .plan .price { font-size: var(--t-3xl); font-weight: 700; letter-spacing: -0.03em; margin: 0 0 4px; }
 .plan ul { padding-left: 1.1em; color: var(--ink-soft); }
 
+/* ---------- API page ---------- */
+
+code {
+  font-family: ui-monospace, 'SFMono-Regular', Menlo, Consolas, monospace;
+  font-size: 0.9em; background: var(--surface-2); padding: 0.1em 0.35em; border-radius: 5px;
+  overflow-wrap: anywhere;
+}
+pre.code {
+  max-width: 820px; margin: 12px 0 18px; padding: 16px 18px; overflow-x: auto;
+  background: var(--surface); border: 1px solid var(--line); border-radius: var(--radius);
+  line-height: 1.55; font-size: var(--t-sm);
+}
+pre.code code { background: none; padding: 0; font-size: inherit; overflow-wrap: normal; white-space: pre; }
+.api-status { background: var(--surface-2); color: var(--ink); max-width: 70ch; }
+.api-table { max-width: 820px; margin: 12px 0 14px; }
+.api-table th:nth-child(2), .api-table td:nth-child(2) { white-space: normal; }
+.api-table tbody th { background: none; color: var(--ink); }
+
 /* ---------- Footer ---------- */
 
 .site-footer { border-top: 1px solid var(--line); padding: 36px 0 48px; color: var(--muted); font-size: var(--t-sm); }

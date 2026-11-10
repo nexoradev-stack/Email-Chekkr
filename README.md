@@ -4,9 +4,9 @@
 
 ### Truvio — Email verification
 
-**Clean lists. Fewer bounces.** Check one email or a whole CSV before you send.
+**Clean lists. Fewer bounces.** Check one email or a whole CSV before you send — on the website, through the API, or from AI tools via MCP.
 
-[Website](https://nexoradev-stack.github.io/Truvio-Email-verification/) · [Architecture](ARCHITECTURE.md) · [How it works](#how-it-works) · [Run it locally](#run-it-locally) · [Roadmap](#roadmap) · [Credits](#credits)
+[Website](https://nexoradev-stack.github.io/Truvio-Email-verification/) · [API](#api) · [Architecture](ARCHITECTURE.md) · [How it works](#how-it-works) · [Run it locally](#run-it-locally) · [Roadmap](#roadmap) · [Credits](#credits)
 
 </div>
 
@@ -71,6 +71,7 @@ address ─► format check ─► typo check ─► team-address check ─► d
 ```text
 site/                       the website (published to GitHub Pages)
 ├── index.html              home: single check, bulk CSV check, result guide, FAQ
+├── api.html                API docs
 ├── pricing.html  about.html  contact.html  privacy.html  terms.html  404.html
 └── assets/
     ├── css/styles.css
@@ -86,10 +87,57 @@ site/                       the website (published to GitHub Pages)
     ├── data/disposable-domains.txt
     ├── data/truvio-sample.csv
     └── img/favicon.svg
-ARCHITECTURE.md                how it works now, and the plan for phases 2 and 3
+server/                     the API and MCP server (Node built-ins only)
+├── index.js                starts the HTTP server
+├── app.js                  routes, API keys, CORS, limits
+├── service.js              verify one, verify many, check domain
+├── node-dns.js             DNS lookups with Node's dns module
+├── mcp.js  stdio.js        MCP tools; MCP over stdin/stdout
+├── rate-limit.js  config.js  runtime.js
+Dockerfile  render.yaml  .env.example
+examples/                   MCP config and API request examples
+ARCHITECTURE.md             how it all works, with diagrams
 scripts/update-disposable.js   refreshes the disposable domain list
-test/engine.test.js            31 tests (no network needed)
+test/                       45 tests (no network needed)
 ```
+
+---
+
+## API
+
+A small Node.js server (no npm packages) that runs the same checks for apps, scripts and AI tools. Domain lookups use Node's built-in DNS — no third-party verification service.
+
+```bash
+npm start                      # http://localhost:8787
+curl "http://localhost:8787/v1/verify?email=sam.lee@gmial.com"
+```
+
+| Endpoint | What it does |
+|---|---|
+| `GET /v1/verify?email=` / `POST /v1/verify` | Check one address |
+| `POST /v1/verify/batch` | Check a list (`{"emails": [...]}`) |
+| `GET /v1/domain?domain=` | Check a domain |
+| `POST /mcp` | MCP for AI tools (needs an API key) |
+| `GET /health` | Health check |
+
+| | Without a key | With an API key |
+|---|---|---|
+| Requests per minute | 30 per IP | 120 per key |
+| Emails per batch | 50 | 500 |
+
+Settings are environment variables — see [`.env.example`](.env.example). Full docs: [`site/api.html`](site/api.html).
+
+### MCP (AI tools)
+
+Tools: `verify_email`, `verify_emails_batch`, `check_domain`.
+
+- **Remote:** `https://<your-api-address>/mcp` with `Authorization: Bearer <API key>`.
+- **Local:** `npm run mcp` (stdio). Example config: [`examples/mcp-config.json`](examples/mcp-config.json).
+
+### Deploy the API
+
+**Render (free plan):** Render → New → Blueprint → pick this repo. It uses [`render.yaml`](render.yaml) and the [`Dockerfile`](Dockerfile), and creates an API key for you (Environment tab).
+Anything that runs Docker or Node 20+ works too (Railway, Fly.io, Google Cloud Run).
 
 ---
 
@@ -98,8 +146,10 @@ test/engine.test.js            31 tests (no network needed)
 Needs Node.js 20+ (for tests) and Python 3 (for the preview server).
 
 ```bash
-npm test          # run the tests
-npm run serve     # open http://localhost:8080
+npm test          # run the tests (engine, API, MCP)
+npm run serve     # website at http://localhost:8080
+npm start         # API at http://localhost:8787
+npm run mcp       # MCP server over stdio
 ```
 
 Refresh the disposable domain list:
@@ -120,9 +170,9 @@ npm run update:disposable
 
 | Phase | What | Status |
 |---|---|---|
-| 1 | Website, single and bulk checks in the browser | ✅ This release |
-| 2 | Accounts, credits and payments (Razorpay) | Planned — pricing to be confirmed |
-| 3 | API keys and an MCP server so AI tools can use Truvio | Planned |
+| 1 | Website, single and bulk checks in the browser | ✅ Built |
+| 2 | REST API and MCP server for AI tools | ✅ Built — ready to deploy |
+| 3 | Accounts, credits and payments (Razorpay), API keys in a database | Planned — pricing to be confirmed |
 
 ---
 

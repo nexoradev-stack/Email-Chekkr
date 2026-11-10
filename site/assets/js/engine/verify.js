@@ -43,21 +43,27 @@ export function parseDomainList(text) {
 
 /**
  * Creates a verifier.
- * @param {{ resolve: Function, disposable: Set<string> }} deps
+ * @param {{ resolve: Function, disposable: Set<string>, cacheTtlMs?: number, cacheMax?: number, now?: () => number }} deps
+ *   cacheTtlMs / cacheMax keep a long-running server's domain cache fresh and bounded.
+ *   The browser keeps the defaults (cache for the whole visit).
  */
-export function createVerifier({ resolve, disposable = new Set() }) {
-  const domainCache = new Map();
+export function createVerifier({ resolve, disposable = new Set(), cacheTtlMs = Infinity, cacheMax = Infinity, now = Date.now }) {
+  const domainCache = new Map(); // domain -> { at, pending }
 
   function lookupDomain(asciiDomain) {
-    if (!domainCache.has(asciiDomain)) {
-      const pending = checkMailDomain(asciiDomain, resolve).then((r) => {
-        // Don't keep failed lookups, so a retry can succeed
-        if (r.result === 'error') domainCache.delete(asciiDomain);
-        return r;
-      });
-      domainCache.set(asciiDomain, pending);
-    }
-    return domainCache.get(asciiDomain);
+    const hit = domainCache.get(asciiDomain);
+    if (hit && now() - hit.at < cacheTtlMs) return hit.pending;
+    if (hit) domainCache.delete(asciiDomain);
+
+    const pending = checkMailDomain(asciiDomain, resolve).then((r) => {
+      // Don't keep failed lookups, so a retry can succeed
+      if (r.result === 'error') domainCache.delete(asciiDomain);
+      return r;
+    });
+    domainCache.set(asciiDomain, { at: now(), pending });
+    // Drop the oldest entry when the cache is full
+    if (domainCache.size > cacheMax) domainCache.delete(domainCache.keys().next().value);
+    return pending;
   }
 
   /**
@@ -121,7 +127,7 @@ export function createVerifier({ resolve, disposable = new Set() }) {
     return { ...base, checks, status: STATUS.VALID, score, reason: 'Address and domain look deliverable' };
   }
 
-  return { verify };
+  return { verify, lookupDomain };
 }
 
 /**

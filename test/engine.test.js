@@ -270,3 +270,8 @@ test('csv: output is spreadsheet-safe', () => {
   assert.equal(safeCell('jane@acmecorp.com'), 'jane@acmecorp.com');
   assert.equal(toCsv([['a', 'b,c'], ['say "hi"', '=1+1']]), 'a,"b,c"\r\n"say ""hi""",\'=1+1');
 });
+
+test('checkMailDomain: empty MX answer but address lookups say the domain does not exist', async () => {
+  const resolve = async (name, type) => (type === 'MX' ? { status: 'ok', records: [] } : { status: 'nxdomain', records: [] });
+  assert.equal((await checkMailDomain('gone.example', resolve)).result, 'nxdomain');
+});

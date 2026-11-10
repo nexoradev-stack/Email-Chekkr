@@ -1,0 +1,151 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>API — Truvio</title>
+  <meta name="description" content="Check emails from your own app or AI tool with the Truvio API and MCP server.">
+  <meta name="theme-color" content="#5b4bdb">
+  <script>try{var t=localStorage.getItem('truvio-theme');if(t==='light'||t==='dark')document.documentElement.setAttribute('data-theme',t)}catch(e){}</script>
+  <link rel="icon" href="assets/img/favicon.svg" type="image/svg+xml">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Lexend:wght@300;350;400;450;500;550;600;650;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="assets/css/styles.css">
+  <script type="module" src="assets/js/app.js"></script>
+</head>
+<body>
+  <a class="skip" href="#main">Skip to content</a>
+
+  <header class="site-header">
+    <div class="wrap">
+      <a class="wordmark" href="./" aria-label="Truvio home">tru<svg class="check" viewBox="0 0 24 24" aria-hidden="true"><path d="M3.5 12.5l5.5 5.5L20.5 5" fill="none" stroke-width="4" stroke-linecap="round" stroke-linejoin="round"/></svg>io</a>
+      <nav class="nav" id="site-nav" aria-label="Main">
+        <a href="./#how">How it works</a>
+        <a href="./#bulk">Check a list</a>
+        <a href="./#results">Results</a>
+        <a href="pricing.html">Pricing</a>
+        <a href="api.html" aria-current="page">API</a>
+        <a href="about.html">About</a>
+      </nav>
+      <div class="header-actions">
+        <button class="theme-toggle" type="button" aria-label="Switch between light and dark mode">
+          <svg class="moon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M21 12.8A9 9 0 1 1 11.2 3a7 7 0 0 0 9.8 9.8z"/></svg>
+          <svg class="sun" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="4"/><path d="M12 2v2M12 20v2M4.9 4.9l1.4 1.4M17.7 17.7l1.4 1.4M2 12h2M20 12h2M4.9 19.1l1.4-1.4M17.7 6.3l1.4-1.4"/></svg>
+        </button>
+        <a class="btn btn-primary btn-sm" href="./#check">Check an email</a>
+        <button class="menu-toggle" type="button" aria-expanded="false" aria-controls="site-nav">Menu</button>
+      </div>
+    </div>
+  </header>
+
+  <main id="main" class="page">
+    <div class="wrap">
+      <h1>Truvio API</h1>
+      <p class="prose">Check emails from your own app, script or AI tool. The API runs the same checks as the website: format, domain, mail server, temporary inboxes, team addresses and typos.</p>
+      <p class="notice api-status">The API is getting ready to go live. The address below starts working after launch.</p>
+
+      <h2>Address</h2>
+      <pre class="code"><code>https://truvio-api.onrender.com</code></pre>
+
+      <h2>Limits</h2>
+      <div class="table-wrap api-table">
+        <table>
+          <thead><tr><th scope="col"></th><th scope="col">Without a key</th><th scope="col">With an API key</th></tr></thead>
+          <tbody>
+            <tr><th scope="row">Requests per minute</th><td>30 per IP address</td><td>120 per key</td></tr>
+            <tr><th scope="row">Emails per batch</th><td>50</td><td>500</td></tr>
+            <tr><th scope="row">AI tools (MCP)</th><td>Not available</td><td>Available</td></tr>
+          </tbody>
+        </table>
+      </div>
+      <p class="prose">Every reply includes <code>RateLimit-Remaining</code> and <code>RateLimit-Reset</code>. Over the limit you get status 429 and a <code>Retry-After</code> header with the seconds to wait.</p>
+
+      <h2>Check one email</h2>
+      <pre class="code"><code>curl "https://truvio-api.onrender.com/v1/verify?email=sam.lee@gmial.com"</code></pre>
+      <p class="prose">Reply:</p>
+      <pre class="code"><code>{
+  "email": "sam.lee@gmial.com",
+  "status": "risky",
+  "score": 1,
+  "reason": "Possible typo — did you mean sam.lee@gmail.com?",
+  "suggestion": "sam.lee@gmail.com",
+  "checks": {
+    "syntax": true,
+    "domain": "gmial.com",
+    "mx": "mx",
+    "disposable": true,
+    "role": false,
+    "free": false
+  }
+}</code></pre>
+
+      <h2>Check a list</h2>
+      <pre class="code"><code>curl -X POST https://truvio-api.onrender.com/v1/verify/batch \
+  -H "Content-Type: application/json" \
+  -H "Authorization: Bearer YOUR_API_KEY" \
+  -d '{"emails": ["jane.doe@acmecorp.com", "hello@mailinator.com"]}'</code></pre>
+      <p class="prose">You get a <code>summary</code> with the count of each result, and <code>results</code> in the same order you sent them.</p>
+
+      <h2>Check a domain</h2>
+      <pre class="code"><code>curl "https://truvio-api.onrender.com/v1/domain?domain=acmecorp.com"</code></pre>
+      <p class="prose">Tells you if the domain exists, accepts email, its mail servers, and whether it's a temporary inbox or a free provider like Gmail.</p>
+
+      <h2>All endpoints</h2>
+      <div class="table-wrap api-table">
+        <table>
+          <thead><tr><th scope="col">Endpoint</th><th scope="col">What it does</th></tr></thead>
+          <tbody>
+            <tr><td><code>GET /v1/verify?email=</code></td><td>Check one address</td></tr>
+            <tr><td><code>POST /v1/verify</code></td><td>Check one address sent as <code>{"email": "..."}</code></td></tr>
+            <tr><td><code>POST /v1/verify/batch</code></td><td>Check a list sent as <code>{"emails": [...]}</code></td></tr>
+            <tr><td><code>GET /v1/domain?domain=</code></td><td>Check a domain</td></tr>
+            <tr><td><code>POST /mcp</code></td><td>Connection for AI tools (needs a key)</td></tr>
+            <tr><td><code>GET /health</code></td><td>Is the API up?</td></tr>
+          </tbody>
+        </table>
+      </div>
+
+      <h2>Results</h2>
+      <p class="prose"><strong>valid</strong>, <strong>risky</strong>, <strong>invalid</strong> or <strong>unknown</strong>, with a score from 0 to 100. See <a href="./#results">what each result means</a>.</p>
+
+      <h2>Errors</h2>
+      <p class="prose">Errors come back as <code>{"error": {"code": "...", "message": "..."}}</code>. Common codes: <code>invalid_input</code> (400), <code>batch_too_large</code> (400), <code>api_key_required</code> or <code>invalid_api_key</code> (401), <code>rate_limited</code> (429).</p>
+
+      <h2>Use Truvio in AI tools (MCP)</h2>
+      <p class="prose">Claude, Cursor and other AI tools can check emails with Truvio. They get three tools: <code>verify_email</code>, <code>verify_emails_batch</code> and <code>check_domain</code>.</p>
+      <p class="prose">To connect over the internet, add this server address in your AI tool and send your API key as a Bearer token:</p>
+      <pre class="code"><code>https://truvio-api.onrender.com/mcp</code></pre>
+      <p class="prose">To run it on your own computer instead, download the code and add this to your AI tool's MCP settings:</p>
+      <pre class="code"><code>{
+  "mcpServers": {
+    "truvio": {
+      "command": "node",
+      "args": ["/full/path/to/Truvio-Email-verification/server/stdio.js"]
+    }
+  }
+}</code></pre>
+
+      <h2>Privacy</h2>
+      <p class="prose">The API doesn't store the addresses you send or write them to its logs. To check a domain it asks public DNS about the domain only.</p>
+
+      <h2>Get an API key</h2>
+      <p class="prose">Keys are free during early access. <a href="contact.html">Ask for one</a>.</p>
+    </div>
+  </main>
+
+  <footer class="site-footer">
+    <div class="wrap">
+      <span>© <span data-year>2026</span> Truvio — Email verification</span>
+      <nav aria-label="Footer">
+        <a href="pricing.html">Pricing</a>
+        <a href="api.html">API</a>
+        <a href="about.html">About</a>
+        <a href="contact.html">Contact</a>
+        <a href="privacy.html">Privacy</a>
+        <a href="terms.html">Terms</a>
+      </nav>
+    </div>
+  </footer>
+</body>
+</html>

@@ -75,6 +75,7 @@ export async function checkMailDomain(domain, resolve) {
   if (a.status === 'ok' && a.records.length) return { result: 'a-fallback', mx: [] };
   const aaaa = await resolve(domain, 'AAAA');
   if (aaaa.status === 'ok' && aaaa.records.length) return { result: 'a-fallback', mx: [] };
+  if (a.status === 'nxdomain' && aaaa.status === 'nxdomain') return { result: 'nxdomain', mx: [] };
   if (a.status === 'error' && aaaa.status === 'error') return { result: 'error', mx: [] };
   return { result: 'no-mail', mx: [] };
 }

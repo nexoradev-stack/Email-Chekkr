@@ -1,4 +1,4 @@
-# Runs the engine tests on every push and pull request.
+# Runs the engine, API and MCP tests on every push and pull request.
 
 name: CI
 

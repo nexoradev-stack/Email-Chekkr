@@ -1,15 +1,20 @@
 {
   "name": "truvio",
-  "version": "0.1.0",
+  "version": "0.2.0",
   "private": true,
-  "description": "Truvio — Email verification. Checks format, domain, mail server, disposable domains, role addresses and typos.",
+  "description": "Truvio \u2014 Email verification. Website, REST API and MCP server that check format, domain, mail server, disposable domains, role addresses and typos.",
   "type": "module",
   "engines": {
     "node": ">=20"
   },
   "scripts": {
-    "test": "node --test test/engine.test.js",
+    "test": "node --test test/engine.test.js test/api.test.js",
+    "start": "node server/index.js",
+    "mcp": "node server/stdio.js",
     "serve": "python3 -m http.server 8080 --directory site",
     "update:disposable": "node scripts/update-disposable.js"
+  },
+  "bin": {
+    "truvio-mcp": "./server/stdio.js"
   }
 }
