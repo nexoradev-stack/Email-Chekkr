@@ -1,4 +1,4 @@
-// Truvio — page behaviour: single check, bulk CSV check, menu.
+// Truvio — page behaviour: theme switch, menu, 3D scene, single check, bulk CSV check.
 
 import { createVerifier, parseDomainList, runPool, STATUS } from './engine/verify.js';
 import { createDohResolver } from './engine/dns.js';
@@ -8,27 +8,41 @@ import { parseCsv, findEmailColumn, toCsv } from './engine/csv.js';
 const MAX_ROWS = 10000;
 const MAX_FILE_BYTES = 5 * 1024 * 1024;
 const PREVIEW_ROWS = 50;
+const THEME_KEY = 'truvio-theme';
 
 const $ = (id) => document.getElementById(id);
-
-// ---------- Shared verifier ----------
-
-let verifierPromise;
-function getVerifier() {
-  if (!verifierPromise) {
-    verifierPromise = fetch('assets/data/disposable-domains.txt')
-      .then((res) => (res.ok ? res.text() : ''))
-      .catch(() => '')
-      .then((text) => createVerifier({ resolve: createDohResolver(), disposable: parseDomainList(text) }));
-  }
-  return verifierPromise;
-}
 
 function escapeHtml(value) {
   return String(value ?? '').replace(/[&<>"']/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
 }
 
 const STATUS_LABEL = { valid: 'Valid', risky: 'Risky', invalid: 'Invalid', unknown: 'Unknown' };
+
+// ---------- Theme ----------
+
+function currentTheme() {
+  const set = document.documentElement.getAttribute('data-theme');
+  if (set === 'light' || set === 'dark') return set;
+  return window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light';
+}
+
+function initTheme() {
+  const button = document.querySelector('.theme-toggle');
+  if (!button) return;
+  const label = () => button.setAttribute('aria-label', currentTheme() === 'dark' ? 'Switch to light mode' : 'Switch to dark mode');
+  label();
+  button.addEventListener('click', () => {
+    const next = currentTheme() === 'dark' ? 'light' : 'dark';
+    document.documentElement.setAttribute('data-theme', next);
+    try { localStorage.setItem(THEME_KEY, next); } catch { /* storage blocked: theme still switches */ }
+    label();
+    document.dispatchEvent(new CustomEvent('truvio:theme', { detail: next }));
+  });
+  window.matchMedia('(prefers-color-scheme: dark)').addEventListener?.('change', () => {
+    label();
+    document.dispatchEvent(new CustomEvent('truvio:theme', { detail: currentTheme() }));
+  });
+}
 
 // ---------- Menu ----------
 
@@ -48,6 +62,29 @@ function initMenu() {
   });
 }
 
+// ---------- 3D scene (loaded only where there's a scene on the page) ----------
+
+function initScene() {
+  const container = $('scene');
+  if (!container) return;
+  import('./scene.js')
+    .then(({ startScene }) => startScene(container))
+    .catch(() => { container.hidden = true; });
+}
+
+// ---------- Shared verifier ----------
+
+let verifierPromise;
+function getVerifier() {
+  if (!verifierPromise) {
+    verifierPromise = fetch('assets/data/disposable-domains.txt')
+      .then((res) => (res.ok ? res.text() : ''))
+      .catch(() => '')
+      .then((text) => createVerifier({ resolve: createDohResolver(), disposable: parseDomainList(text) }));
+  }
+  return verifierPromise;
+}
+
 // ---------- Single check ----------
 
 function checkItem(state, title, detail) {
@@ -56,32 +93,32 @@ function checkItem(state, title, detail) {
     <span><strong>${escapeHtml(title)}</strong><span class="detail">${escapeHtml(detail)}</span></span></li>`;
 }
 
-function renderAnatomy(email, local, domain, localState, domainState) {
-  $('address').innerHTML = local !== null
-    ? `<span class="seg"><span class="part ${localState}">${escapeHtml(local)}</span><span class="seg-label">name</span></span>`
-      + '<span class="at" aria-hidden="true">@</span>'
-      + `<span class="seg"><span class="part ${domainState}">${escapeHtml(domain)}</span><span class="seg-label">domain</span></span>`
-    : `<span class="seg"><span class="part bad">${escapeHtml(email || ' ')}</span></span>`;
-}
-
-function renderChecklist(items) {
-  $('checklist').innerHTML = items.map(([state, title, detail]) => checkItem(state, title, detail)).join('');
-}
-
 function splitAddress(email) {
   const at = email.lastIndexOf('@');
   if (at <= 0 || at === email.length - 1) return [null, null];
   return [email.slice(0, at), email.slice(at + 1)];
 }
 
+function renderAnatomy(email, local, domain, localState, domainState) {
+  $('address').innerHTML = local !== null
+    ? `<span class="seg"><span class="part ${localState}">${escapeHtml(local)}</span><span class="seg-label">name</span></span>`
+      + '<span class="at" aria-hidden="true">@</span>'
+      + `<span class="seg"><span class="part ${domainState}">${escapeHtml(domain)}</span><span class="seg-label">domain</span></span>`
+    : `<span class="seg"><span class="part bad">${escapeHtml(email || ' ')}</span><span class="seg-label">address</span></span>`;
+}
+
+function renderChecklist(items) {
+  $('checklist').innerHTML = items.map(([state, title, detail]) => checkItem(state, title, detail)).join('');
+}
+
 function mxDetail(result) {
   return {
     mx: 'Mail server found',
-    'a-fallback': 'No mail server record, but the domain is online',
-    'null-mx': 'The domain says it never accepts email',
+    'a-fallback': 'No mail server record',
+    'null-mx': 'Says it never accepts email',
     'no-mail': 'No mail server found',
-    nxdomain: 'This domain does not exist',
-    error: 'The lookup did not answer in time',
+    nxdomain: 'Domain does not exist',
+    error: 'No answer in time',
     'not-checked': 'Not checked'
   }[result] || '';
 }
@@ -89,7 +126,7 @@ function mxDetail(result) {
 function buildChecklist(result) {
   const c = result.checks;
   const items = [];
-  items.push(c.syntax ? ['ok', 'Format', 'Written correctly'] : ['bad', 'Format', result.reason]);
+  items.push(c.syntax ? ['ok', 'Format', 'Written correctly'] : ['bad', 'Format', 'Not a valid address']);
   if (!c.syntax) {
     items.push(['skip', 'Domain', 'Not checked'], ['skip', 'Mail server', 'Not checked'],
       ['skip', 'Temporary inbox', 'Not checked'], ['skip', 'Person or team', 'Not checked']);
@@ -99,28 +136,34 @@ function buildChecklist(result) {
   items.push(c.mx === 'error' ? ['wait', 'Domain', 'No answer yet'] : exists ? ['ok', 'Domain', 'Exists'] : ['bad', 'Domain', 'Does not exist']);
   const mxState = c.mx === 'mx' ? 'ok' : c.mx === 'a-fallback' ? 'warn' : c.mx === 'error' ? 'wait' : 'bad';
   items.push([mxState, 'Mail server', mxDetail(c.mx)]);
-  items.push(c.disposable ? ['warn', 'Temporary inbox', 'Known disposable domain'] : ['ok', 'Temporary inbox', 'Not a disposable domain']);
-  items.push(c.role ? ['warn', 'Person or team', 'Team address (reaches a group)'] : ['ok', 'Person or team', 'Looks like a person']);
-  if (result.suggestion) items.push(['warn', 'Typo check', 'Domain looks mistyped']);
+  items.push(c.disposable ? ['warn', 'Temporary inbox', 'Known disposable domain'] : ['ok', 'Temporary inbox', 'Not disposable']);
+  items.push(c.role ? ['warn', 'Person or team', 'Team address'] : ['ok', 'Person or team', 'Looks like a person']);
+  if (result.suggestion) items.push(['warn', 'Typo', 'Domain looks mistyped']);
   return items;
 }
 
 function renderVerdict(result) {
   const v = $('verdict');
+  const color = `var(--${result.status})`;
   v.className = `verdict ${result.status}`;
-  const suggest = result.suggestion
-    ? `<p class="suggest">Did you mean <button type="button" data-suggest="${escapeHtml(result.suggestion)}">${escapeHtml(result.suggestion)}</button>?</p>`
-    : '';
   v.innerHTML = `<span class="status">${STATUS_LABEL[result.status]}</span>
     <span class="score">Score ${result.score} / 100</span>
-    <p class="reason">${escapeHtml(result.reason)}</p>${suggest}`;
+    <div class="meter" aria-hidden="true"><span style="background:${color}"></span></div>`;
   v.hidden = false;
+  requestAnimationFrame(() => { v.querySelector('.meter span').style.width = `${result.score}%`; });
+
+  const reason = $('reason-line');
+  const suggest = result.suggestion
+    ? ` <button type="button" data-suggest="${escapeHtml(result.suggestion)}">Check ${escapeHtml(result.suggestion)} instead</button>`
+    : '';
+  reason.innerHTML = `${escapeHtml(result.reason)}.${suggest}`.replace('?.', '?');
+  reason.hidden = false;
 }
 
 async function runSingle(email) {
-  const anatomy = $('anatomy');
-  anatomy.hidden = false;
+  $('result-panel').hidden = false;
   $('verdict').hidden = true;
+  $('reason-line').hidden = true;
 
   const syntax = checkSyntax(email);
   const [local, domain] = splitAddress(syntax.email);
@@ -133,7 +176,6 @@ async function runSingle(email) {
     return;
   }
 
-  // Format is fine: show the address, then wait for the domain lookup
   renderAnatomy(syntax.email, local, domain, 'ok', 'wait');
   renderChecklist([
     ['ok', 'Format', 'Written correctly'],
@@ -146,12 +188,11 @@ async function runSingle(email) {
   const verifier = await getVerifier();
   const result = await verifier.verify(syntax.email);
   const c = result.checks;
-  const localState = c.role ? 'warn' : 'ok';
   let domainState = 'ok';
   if (result.status === STATUS.INVALID) domainState = 'bad';
   else if (result.status === STATUS.UNKNOWN) domainState = 'wait';
   else if (c.disposable || result.suggestion || c.mx === 'a-fallback') domainState = 'warn';
-  renderAnatomy(syntax.email, local, domain, localState, domainState);
+  renderAnatomy(syntax.email, local, domain, c.role ? 'warn' : 'ok', domainState);
   renderChecklist(buildChecklist(result));
   renderVerdict(result);
 }
@@ -160,21 +201,26 @@ function initSingle() {
   const form = $('single-form');
   const input = $('single-input');
   if (!form) return;
+
+  const run = (value) => runSingle(value).catch(() => {
+    renderVerdict({ status: 'unknown', score: 50, reason: 'Something went wrong while checking. Try again', checks: {} });
+  });
+
   form.addEventListener('submit', (e) => {
     e.preventDefault();
     if (!input.value.trim()) { input.focus(); return; }
-    runSingle(input.value).catch(() => {
-      renderVerdict({ status: 'unknown', score: 50, reason: 'Something went wrong while checking. Try again.' });
-    });
+    run(input.value);
   });
-  $('verdict').addEventListener('click', (e) => {
+  document.querySelectorAll('[data-try]').forEach((button) => {
+    button.addEventListener('click', () => { input.value = button.dataset.try; run(input.value); });
+  });
+  $('reason-line').addEventListener('click', (e) => {
     const button = e.target.closest('[data-suggest]');
     if (!button) return;
     input.value = button.dataset.suggest;
-    runSingle(input.value);
+    run(input.value);
   });
-  // Warm up the disposable list
-  getVerifier();
+  getVerifier(); // warm up the disposable list
 }
 
 // ---------- Bulk CSV ----------
@@ -219,16 +265,16 @@ function download(rows, suffix) {
   setTimeout(() => URL.revokeObjectURL(url), 1000);
 }
 
-function renderBulkResult() {
+function renderBulkResult(stopped) {
   const results = bulk.results.filter(Boolean);
   const total = results.length;
   const counts = { valid: 0, risky: 0, invalid: 0, unknown: 0 };
   results.forEach((r) => { counts[r.status] += 1; });
 
-  $('bulk-file-name').textContent = `${bulk.fileName}: ${total.toLocaleString()} addresses checked`;
+  $('bulk-file-name').textContent = `${bulk.fileName}: ${total.toLocaleString()} addresses checked${stopped ? ' (stopped early)' : ''}`;
   $('summary-bar').innerHTML = Object.entries(counts)
     .filter(([, n]) => n > 0)
-    .map(([status, n]) => `<span class="${status}" style="width:${(n / total) * 100}%"></span>`)
+    .map(([status, n]) => `<span class="${status}" style="flex:${n}"></span>`)
     .join('');
   $('counts').innerHTML = Object.entries(counts)
     .map(([status, n]) => `<li><b>${n.toLocaleString()}</b><span class="dot" style="background:var(--${status})"></span>${STATUS_LABEL[status]}</li>`)
@@ -272,7 +318,7 @@ async function runBulk(file) {
     return;
   }
   if (dataRows.length > MAX_ROWS) {
-    showBulkError(`This file has ${dataRows.length.toLocaleString()} rows. The limit is ${MAX_ROWS.toLocaleString()} — split it into smaller files and try again.`);
+    showBulkError(`This file has ${dataRows.length.toLocaleString()} rows. The limit is ${MAX_ROWS.toLocaleString()}. Split it into smaller files and try again.`);
     return;
   }
 
@@ -287,7 +333,7 @@ async function runBulk(file) {
 
   const verifier = await getVerifier();
   const emails = dataRows.map((row) => row[index] || '');
-  const results = await runPool(emails, (email) => verifier.verify(email), {
+  bulk.results = await runPool(emails, (email) => verifier.verify(email), {
     concurrency: 8,
     signal: bulk.controller.signal,
     onProgress: (done, total) => {
@@ -295,22 +341,22 @@ async function runBulk(file) {
       text.textContent = `Checking ${done.toLocaleString()} of ${total.toLocaleString()}…`;
     }
   });
-  bulk.results = results;
 
-  if (!results.some(Boolean)) {
+  if (!bulk.results.some(Boolean)) {
     setBulkView('empty');
     return;
   }
-  renderBulkResult();
+  renderBulkResult(bulk.controller.signal.aborted);
 }
 
 function initBulk() {
   const input = $('csv-input');
   const drop = $('drop');
   if (!input) return;
+  const fail = () => { setBulkView('empty'); showBulkError('Something went wrong reading this file. Check it opens in a spreadsheet, then try again.'); };
 
   input.addEventListener('change', () => {
-    if (input.files[0]) runBulk(input.files[0]).catch(() => { setBulkView('empty'); showBulkError('Something went wrong reading this file. Check it opens in a spreadsheet, then try again.'); });
+    if (input.files[0]) runBulk(input.files[0]).catch(fail);
     input.value = '';
   });
   ['dragenter', 'dragover'].forEach((type) => drop.addEventListener(type, (e) => { e.preventDefault(); drop.classList.add('dragging'); }));
@@ -318,7 +364,7 @@ function initBulk() {
   drop.addEventListener('drop', (e) => {
     e.preventDefault();
     const file = e.dataTransfer?.files?.[0];
-    if (file) runBulk(file).catch(() => { setBulkView('empty'); showBulkError('Something went wrong reading this file. Check it opens in a spreadsheet, then try again.'); });
+    if (file) runBulk(file).catch(fail);
   });
 
   $('bulk-cancel').addEventListener('click', () => bulk.controller?.abort());
@@ -329,6 +375,8 @@ function initBulk() {
 // ---------- Start ----------
 
 document.querySelectorAll('[data-year]').forEach((el) => { el.textContent = String(new Date().getFullYear()); });
+initTheme();
 initMenu();
+initScene();
 initSingle();
 initBulk();

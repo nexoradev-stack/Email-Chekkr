@@ -6,7 +6,7 @@
 
 **Clean lists. Fewer bounces.** Check one email or a whole CSV before you send.
 
-[Website](https://nexoradev-stack.github.io/Truvio-Email-verification/) · [How it works](#how-it-works) · [Run it locally](#run-it-locally) · [Roadmap](#roadmap) · [Credits](#credits)
+[Website](https://nexoradev-stack.github.io/Truvio-Email-verification/) · [Architecture](ARCHITECTURE.md) · [How it works](#how-it-works) · [Run it locally](#run-it-locally) · [Roadmap](#roadmap) · [Credits](#credits)
 
 </div>
 
@@ -38,9 +38,17 @@ Truvio doesn't log in to mail servers, so **"valid" means the address and its do
 
 ---
 
+## Design
+
+- **Font:** [Lexend](https://fonts.google.com/specimen/Lexend), chosen for easy reading.
+- **Light and dark mode:** follows the visitor's system setting, with a sun/moon toggle in the header. The choice is remembered in the browser.
+- **3D hero:** envelopes travel through a scanning ring and come out marked valid (green), risky (amber) or invalid (red). Built with Three.js; it pauses when off-screen, shows a still frame for visitors who prefer reduced motion, and the page works without it.
+
+---
+
 ## How it works
 
-Everything runs **in the visitor's browser**. There's no server to host.
+Everything runs **in the visitor's browser**. There's no server to host. Full details and diagrams are in **[ARCHITECTURE.md](ARCHITECTURE.md)**.
 
 ```text
 address ─► format check ─► typo check ─► team-address check ─► disposable list
@@ -66,7 +74,8 @@ site/                       the website (published to GitHub Pages)
 ├── pricing.html  about.html  contact.html  privacy.html  terms.html  404.html
 └── assets/
     ├── css/styles.css
-    ├── js/app.js           page behaviour
+    ├── js/app.js           page behaviour, theme toggle
+    ├── js/scene.js         3D hero animation (Three.js)
     ├── js/engine/          the verification engine (runs in browsers and Node)
     │   ├── syntax.js       format rules
     │   ├── typo.js         "did you mean …?" suggestions
@@ -77,6 +86,7 @@ site/                       the website (published to GitHub Pages)
     ├── data/disposable-domains.txt
     ├── data/truvio-sample.csv
     └── img/favicon.svg
+ARCHITECTURE.md                how it works now, and the plan for phases 2 and 3
 scripts/update-disposable.js   refreshes the disposable domain list
 test/engine.test.js            31 tests (no network needed)
 ```
