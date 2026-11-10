@@ -1,0 +1,191 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Truvio — Email verification</title>
+  <meta name="description" content="Check one email or a whole list before you send. Truvio checks the format, the domain, the mail server, disposable domains, role addresses and typos.">
+  <meta property="og:title" content="Truvio — Email verification">
+  <meta property="og:description" content="Clean lists. Fewer bounces. Check one email or a whole CSV before you send.">
+  <meta property="og:type" content="website">
+  <meta name="theme-color" content="#1e1d4f">
+  <link rel="icon" href="assets/img/favicon.svg" type="image/svg+xml">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500&family=Schibsted+Grotesk:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="assets/css/styles.css">
+  <script type="module" src="assets/js/app.js"></script>
+</head>
+<body>
+  <a class="skip" href="#main">Skip to content</a>
+
+  <header class="site-header">
+    <div class="wrap">
+      <a class="wordmark" href="./" aria-label="Truvio home">tru<svg class="check" viewBox="0 0 24 24" aria-hidden="true"><path d="M3.5 12.5l5.5 5.5L20.5 5" fill="none" stroke="#2fbf84" stroke-width="4" stroke-linecap="round" stroke-linejoin="round"/></svg>io</a>
+      <button class="menu-toggle" type="button" aria-expanded="false" aria-controls="site-nav">Menu</button>
+      <nav class="nav" id="site-nav" aria-label="Main">
+        <a href="#bulk">Check a list</a>
+        <a href="#results">What results mean</a>
+        <a href="pricing.html">Pricing</a>
+        <a href="about.html">About</a>
+        <a class="nav-cta" href="#check">Check an email</a>
+      </nav>
+    </div>
+  </header>
+
+  <main id="main">
+    <section class="hero" id="check" aria-labelledby="hero-title">
+      <div class="wrap">
+        <h1 id="hero-title">Clean lists. Fewer bounces.</h1>
+        <p class="lede">Check an email before you send to it. Truvio looks at the format, the domain, its mail server, temporary inboxes, team addresses and typos.</p>
+
+        <form class="checker" id="single-form" novalidate>
+          <label for="single-input">Email address</label>
+          <input id="single-input" name="email" type="email" inputmode="email" autocomplete="off" spellcheck="false"
+                 placeholder="jane.doe@acmecorp.com" maxlength="320" required>
+          <button class="btn btn-primary" type="submit">Check email</button>
+        </form>
+
+        <div class="anatomy" id="anatomy" hidden aria-live="polite">
+          <div class="address" id="address"></div>
+          <ul class="checklist" id="checklist"></ul>
+          <div class="verdict" id="verdict" hidden></div>
+        </div>
+      </div>
+    </section>
+
+    <section class="section" id="bulk" aria-labelledby="bulk-title">
+      <div class="wrap">
+        <h2 id="bulk-title">Check a whole list</h2>
+        <p class="section-intro">Upload a CSV and get it back with a status for every address. Your file stays on your computer — it's checked in your browser and never uploaded.</p>
+
+        <div class="bulk-grid">
+          <div>
+            <label class="drop" id="drop">
+              <input id="csv-input" type="file" accept=".csv,text/csv">
+              <strong>Choose a CSV file</strong>
+              <span class="muted">or drag it here. Up to 10,000 rows.</span>
+            </label>
+            <p class="bulk-notes">
+              Truvio finds the email column for you (a header like "Email" helps).
+              Need a file to try? <a href="assets/data/truvio-sample.csv" download>Download a sample CSV</a>.
+            </p>
+            <div class="notice" id="bulk-error" role="alert" hidden></div>
+          </div>
+
+          <div id="bulk-panel" aria-live="polite">
+            <p class="muted" id="bulk-empty">Results will appear here.</p>
+            <div id="bulk-progress" hidden>
+              <p id="bulk-progress-text">Checking…</p>
+              <div class="progress"><span id="bulk-progress-bar"></span></div>
+              <button class="btn btn-secondary" type="button" id="bulk-cancel">Stop checking</button>
+            </div>
+            <div id="bulk-result" hidden>
+              <p id="bulk-file-name" class="muted"></p>
+              <div class="summary-bar" id="summary-bar" aria-hidden="true"></div>
+              <ul class="counts" id="counts"></ul>
+              <div class="bulk-actions">
+                <button class="btn btn-primary" type="button" id="download-all">Download all results</button>
+                <button class="btn btn-secondary" type="button" id="download-valid">Download valid only</button>
+              </div>
+              <div class="table-wrap">
+                <table>
+                  <caption class="muted" style="caption-side: bottom; padding: 10px 14px; text-align: left;" id="table-caption"></caption>
+                  <thead><tr><th scope="col">Email</th><th scope="col">Status</th><th scope="col">Why</th></tr></thead>
+                  <tbody id="preview-rows"></tbody>
+                </table>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section class="section" id="results" aria-labelledby="results-title">
+      <div class="wrap">
+        <h2 id="results-title">What each result means</h2>
+        <p class="section-intro">Every address gets one of four results and a score from 0 to 100.</p>
+        <ul class="legend">
+          <li style="--c: var(--valid)">
+            <h3>Valid</h3>
+            <p>Well-formed, and the domain has a working mail server. No warning signs. Safe to send.</p>
+          </li>
+          <li style="--c: var(--risky)">
+            <h3>Risky</h3>
+            <p>The domain takes email, but something is off: a temporary inbox, a team address like info@, a likely typo, or no mail server record.</p>
+          </li>
+          <li style="--c: var(--invalid)">
+            <h3>Invalid</h3>
+            <p>Badly formed, or the domain doesn't exist or doesn't accept email. Sending will bounce.</p>
+          </li>
+          <li style="--c: var(--unknown)">
+            <h3>Unknown</h3>
+            <p>The domain didn't answer in time. Check it again later before removing it.</p>
+          </li>
+        </ul>
+      </div>
+    </section>
+
+    <section class="section" aria-labelledby="honest-title">
+      <div class="wrap split">
+        <div>
+          <h2 id="honest-title">What Truvio checks</h2>
+          <ul>
+            <li>The address is written correctly (one @, allowed characters, valid extension)</li>
+            <li>The domain exists</li>
+            <li>The domain has a mail server that accepts email</li>
+            <li>The domain isn't a temporary inbox service (10,000+ known domains)</li>
+            <li>The address isn't a team inbox like info@, sales@ or support@</li>
+            <li>Common typos, like gmial.com or company.con</li>
+          </ul>
+        </div>
+        <div>
+          <h2>What it doesn't</h2>
+          <ul>
+            <li>Truvio doesn't log in to mail servers, so "valid" means the address and domain look deliverable — not that this exact mailbox was confirmed.</li>
+            <li>It never sends an email to anyone on your list.</li>
+            <li>It doesn't store your addresses. To check a domain, only the part after the @ (like acmecorp.com) is looked up.</li>
+          </ul>
+        </div>
+      </div>
+    </section>
+
+    <section class="section" aria-labelledby="faq-title">
+      <div class="wrap">
+        <h2 id="faq-title">Questions</h2>
+        <div class="faq">
+          <details>
+            <summary>Is my list uploaded anywhere?</summary>
+            <p>No. Your CSV is read and checked inside your browser. To see if a domain receives email, Truvio asks a public DNS service about the domain only (for example acmecorp.com) — never the full address.</p>
+          </details>
+          <details>
+            <summary>Why is an address "risky" and not "valid"?</summary>
+            <p>Its domain takes email, but there's a warning sign: it's a temporary inbox, a team address, a likely typo, or the domain has no mail server record. You decide whether to keep it.</p>
+          </details>
+          <details>
+            <summary>How many addresses can I check?</summary>
+            <p>Up to 10,000 rows per file. Bigger lists can be split into several files.</p>
+          </details>
+          <details>
+            <summary>Does it cost anything?</summary>
+            <p>Truvio is free while in early access. See <a href="pricing.html">Pricing</a> for what's coming.</p>
+          </details>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <footer class="site-footer">
+    <div class="wrap">
+      <span>© <span data-year>2026</span> Truvio — Email verification</span>
+      <nav aria-label="Footer">
+        <a href="pricing.html">Pricing</a>
+        <a href="about.html">About</a>
+        <a href="contact.html">Contact</a>
+        <a href="privacy.html">Privacy</a>
+        <a href="terms.html">Terms</a>
+      </nav>
+    </div>
+  </footer>
+</body>
+</html>

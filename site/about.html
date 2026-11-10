@@ -1,0 +1,67 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>About — Truvio</title>
+  <meta name="description" content="What Truvio is, how it checks addresses, and who builds it.">
+  <meta name="theme-color" content="#1e1d4f">
+  <link rel="icon" href="assets/img/favicon.svg" type="image/svg+xml">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500&family=Schibsted+Grotesk:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="assets/css/styles.css">
+  <script type="module" src="assets/js/app.js"></script>
+</head>
+<body>
+  <a class="skip" href="#main">Skip to content</a>
+
+  <header class="site-header">
+    <div class="wrap">
+      <a class="wordmark" href="./" aria-label="Truvio home">tru<svg class="check" viewBox="0 0 24 24" aria-hidden="true"><path d="M3.5 12.5l5.5 5.5L20.5 5" fill="none" stroke="#2fbf84" stroke-width="4" stroke-linecap="round" stroke-linejoin="round"/></svg>io</a>
+      <button class="menu-toggle" type="button" aria-expanded="false" aria-controls="site-nav">Menu</button>
+      <nav class="nav" id="site-nav" aria-label="Main">
+        <a href="./#bulk">Check a list</a>
+        <a href="./#results">What results mean</a>
+        <a href="pricing.html">Pricing</a>
+        <a href="about.html" aria-current="page">About</a>
+        <a class="nav-cta" href="./#check">Check an email</a>
+      </nav>
+    </div>
+  </header>
+
+  <main id="main" class="page">
+    <div class="wrap">
+      <h1>About Truvio</h1>
+      <div class="prose">
+        <p>Truvio helps you clean an email list before you send to it. Fewer bounces protect your sender reputation, so more of your emails reach real inboxes.</p>
+        <h2>How it checks an address</h2>
+        <ol>
+          <li>Reads the address and checks it's written correctly.</li>
+          <li>Looks up the domain to see that it exists and has a mail server.</li>
+          <li>Compares the domain with a list of over 10,000 temporary inbox services.</li>
+          <li>Flags team addresses like info@ and support@, and suggests fixes for common typos.</li>
+          <li>Gives the address a result (valid, risky, invalid or unknown) and a score from 0 to 100.</li>
+        </ol>
+        <h2>What makes it different</h2>
+        <p>Your list never leaves your computer. Checks run in your browser, and only the domain part of each address (like acmecorp.com) is looked up through a public DNS service.</p>
+        <h2>Who builds it</h2>
+        <p>Truvio is an independent project, built with help from Claude (by Anthropic) and Cursor. The code is on <a href="https://github.com/nexoradev-stack/Truvio-Email-verification">GitHub</a>.</p>
+      </div>
+    </div>
+  </main>
+
+  <footer class="site-footer">
+    <div class="wrap">
+      <span>© <span data-year>2026</span> Truvio — Email verification</span>
+      <nav aria-label="Footer">
+        <a href="pricing.html">Pricing</a>
+        <a href="about.html">About</a>
+        <a href="contact.html">Contact</a>
+        <a href="privacy.html">Privacy</a>
+        <a href="terms.html">Terms</a>
+      </nav>
+    </div>
+  </footer>
+</body>
+</html>

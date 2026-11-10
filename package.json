@@ -1,0 +1,15 @@
+{
+  "name": "truvio",
+  "version": "0.1.0",
+  "private": true,
+  "description": "Truvio — Email verification. Checks format, domain, mail server, disposable domains, role addresses and typos.",
+  "type": "module",
+  "engines": {
+    "node": ">=20"
+  },
+  "scripts": {
+    "test": "node --test test/engine.test.js",
+    "serve": "python3 -m http.server 8080 --directory site",
+    "update:disposable": "node scripts/update-disposable.js"
+  }
+}
