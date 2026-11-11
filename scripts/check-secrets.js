@@ -17,7 +17,7 @@ const SECRET_PATTERNS = [
   ['Razorpay key', /\brzp_(live|test)_[A-Za-z0-9]{10,}/],
   ['Stripe key', /\b(sk|rk)_(live|test)_[A-Za-z0-9]{10,}/],
   ['Private key', /-----BEGIN [A-Z ]*PRIVATE KEY-----/],
-  ['API key value', /(?:TRUVIO|EMAIL_CHEKKR)_API_KEYS\s*=\s*[^\s#]+/]
+  ['API key value', /EMAIL_CHEKKR_API_KEYS\s*=\s*[^\s#]+/]
 ];
 
 // Example addresses must use made-up names. Real mailbox providers are allowed only with these sample names.

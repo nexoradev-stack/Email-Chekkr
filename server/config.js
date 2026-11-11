@@ -20,63 +20,49 @@ function list(value) {
 }
 
 /**
- * Settings can be named EMAIL_CHEKKR_* (preferred) or TRUVIO_* (the original names, still
- * read so existing deployments keep working). When both are set, EMAIL_CHEKKR_* wins.
- * @param {Record<string, string|undefined>} env
- */
-export function withAliases(env) {
-  const out = { ...env };
-  for (const [key, value] of Object.entries(env)) {
-    if (key.startsWith('EMAIL_CHEKKR_') && value !== undefined) out[`TRUVIO_${key.slice(13)}`] = value;
-  }
-  return out;
-}
-
-/**
  * Builds the configuration.
  * @param {Record<string, string|undefined>} env  usually process.env
  */
-export function loadConfig(rawEnv = process.env) {
-  const env = withAliases(rawEnv);
+export function loadConfig(env = process.env) {
   return {
-    host: env.TRUVIO_HOST || '0.0.0.0',
+    host: env.EMAIL_CHEKKR_HOST || '0.0.0.0',
     // Render, Railway, Fly and Cloud Run inject PORT
-    port: int(env.PORT ?? env.TRUVIO_PORT, 8787, { min: 0, max: 65535 }),
+    port: int(env.PORT ?? env.EMAIL_CHEKKR_PORT, 8787, { min: 0, max: 65535 }),
 
     // API keys: comma-separated. Keys get the higher "key" limits and access to /mcp.
-    apiKeys: new Set(list(env.TRUVIO_API_KEYS)),
+    apiKeys: new Set(list(env.EMAIL_CHEKKR_API_KEYS)),
     // When false, every request (except /health and /version) needs an API key.
-    publicAccess: bool(env.TRUVIO_PUBLIC_ACCESS, true),
+    publicAccess: bool(env.EMAIL_CHEKKR_PUBLIC_ACCESS, true),
 
     // Browsers allowed to call the API. "*" allows any site.
-    corsOrigins: list(env.TRUVIO_CORS_ORIGINS || 'https://nexoradev-stack.github.io,http://localhost:8080,http://127.0.0.1:8080'),
+    corsOrigins: list(env.EMAIL_CHEKKR_CORS_ORIGINS || 'https://nexoradev-stack.github.io,http://localhost:8080,http://127.0.0.1:8080'),
 
     limits: {
-      windowMs: int(env.TRUVIO_RATE_WINDOW_MS, 60_000, { min: 1000 }),
+      windowMs: int(env.EMAIL_CHEKKR_RATE_WINDOW_MS, 60_000, { min: 1000 }),
       // Without a key (for example the website): requests per window, per IP address
-      publicPerWindow: int(env.TRUVIO_PUBLIC_RATE_LIMIT, 30, { min: 1 }),
-      publicBatchMax: int(env.TRUVIO_PUBLIC_BATCH_MAX, 50, { min: 1, max: 1000 }),
+      publicPerWindow: int(env.EMAIL_CHEKKR_PUBLIC_RATE_LIMIT, 30, { min: 1 }),
+      publicBatchMax: int(env.EMAIL_CHEKKR_PUBLIC_BATCH_MAX, 50, { min: 1, max: 1000 }),
       // With an API key: requests per window, per key
-      keyPerWindow: int(env.TRUVIO_KEY_RATE_LIMIT, 120, { min: 1 }),
-      keyBatchMax: int(env.TRUVIO_KEY_BATCH_MAX, 500, { min: 1, max: 1000 }),
-      maxBodyBytes: int(env.TRUVIO_MAX_BODY_BYTES, 1_000_000, { min: 1024 })
+      keyPerWindow: int(env.EMAIL_CHEKKR_KEY_RATE_LIMIT, 120, { min: 1 }),
+      keyBatchMax: int(env.EMAIL_CHEKKR_KEY_BATCH_MAX, 500, { min: 1, max: 1000 }),
+      maxBodyBytes: int(env.EMAIL_CHEKKR_MAX_BODY_BYTES, 1_000_000, { min: 1024 })
     },
 
     dns: {
-      timeoutMs: int(env.TRUVIO_DNS_TIMEOUT_MS, 5000, { min: 500, max: 30_000 }),
-      tries: int(env.TRUVIO_DNS_TRIES, 2, { min: 1, max: 5 }),
+      timeoutMs: int(env.EMAIL_CHEKKR_DNS_TIMEOUT_MS, 5000, { min: 500, max: 30_000 }),
+      tries: int(env.EMAIL_CHEKKR_DNS_TRIES, 2, { min: 1, max: 5 }),
       // Optional: comma-separated DNS servers, e.g. "1.1.1.1,8.8.8.8". Empty = the system's servers.
-      servers: list(env.TRUVIO_DNS_SERVERS),
-      cacheTtlMs: int(env.TRUVIO_DNS_CACHE_TTL_MS, 10 * 60_000, { min: 0 }),
-      cacheMax: int(env.TRUVIO_DNS_CACHE_MAX, 50_000, { min: 100 })
+      servers: list(env.EMAIL_CHEKKR_DNS_SERVERS),
+      cacheTtlMs: int(env.EMAIL_CHEKKR_DNS_CACHE_TTL_MS, 10 * 60_000, { min: 0 }),
+      cacheMax: int(env.EMAIL_CHEKKR_DNS_CACHE_MAX, 50_000, { min: 100 })
     },
 
     // How many lookups one batch runs at the same time
-    concurrency: int(env.TRUVIO_CONCURRENCY, 10, { min: 1, max: 50 }),
+    concurrency: int(env.EMAIL_CHEKKR_CONCURRENCY, 10, { min: 1, max: 50 }),
 
     // Behind Render/Railway/Cloud Run the client IP comes from X-Forwarded-For
-    trustProxy: bool(env.TRUVIO_TRUST_PROXY, true),
+    trustProxy: bool(env.EMAIL_CHEKKR_TRUST_PROXY, true),
 
-    disposablePath: env.TRUVIO_DISPOSABLE_PATH || null
+    disposablePath: env.EMAIL_CHEKKR_DISPOSABLE_PATH || null
   };
 }

@@ -27,7 +27,7 @@ function fakeResolve(name, type) {
 const KEY = 'test-key-123';
 
 async function startApi(env = {}) {
-  const config = loadConfig({ TRUVIO_API_KEYS: KEY, TRUVIO_CORS_ORIGINS: 'https://allowed.example', ...env });
+  const config = loadConfig({ EMAIL_CHEKKR_API_KEYS: KEY, EMAIL_CHEKKR_CORS_ORIGINS: 'https://allowed.example', ...env });
   const service = createService({ resolve: fakeResolve, disposable: new Set(['mailinator.com']) });
   const server = createServer(createApp({ config, service }));
   await new Promise((r) => server.listen(0, '127.0.0.1', r));
@@ -49,7 +49,7 @@ test('config: defaults and parsing', () => {
   assert.equal(c.limits.keyPerWindow, 120);
   assert.equal(c.limits.keyBatchMax, 500);
   assert.equal(c.publicAccess, true);
-  const d = loadConfig({ PORT: '9000', TRUVIO_API_KEYS: 'a, b ,', TRUVIO_PUBLIC_ACCESS: 'false', TRUVIO_KEY_BATCH_MAX: '99999' });
+  const d = loadConfig({ PORT: '9000', EMAIL_CHEKKR_API_KEYS: 'a, b ,', EMAIL_CHEKKR_PUBLIC_ACCESS: 'false', EMAIL_CHEKKR_KEY_BATCH_MAX: '99999' });
   assert.equal(d.port, 9000);
   assert.deepEqual([...d.apiKeys], ['a', 'b']);
   assert.equal(d.publicAccess, false);
@@ -176,7 +176,7 @@ test('API: domain endpoint', async () => {
 });
 
 test('API: keys, public access switch and bad requests', async () => {
-  const api = await startApi({ TRUVIO_PUBLIC_ACCESS: 'false' });
+  const api = await startApi({ EMAIL_CHEKKR_PUBLIC_ACCESS: 'false' });
   try {
     const noKey = await api.get('/v1/verify?email=a@example.com');
     assert.equal(noKey.status, 401);
@@ -198,7 +198,7 @@ test('API: keys, public access switch and bad requests', async () => {
 });
 
 test('API: rate limit returns 429 with Retry-After', async () => {
-  const api = await startApi({ TRUVIO_PUBLIC_RATE_LIMIT: '2' });
+  const api = await startApi({ EMAIL_CHEKKR_PUBLIC_RATE_LIMIT: '2' });
   try {
     await api.get('/v1/verify?email=a@example.com');
     await api.get('/v1/verify?email=a@example.com');
@@ -273,7 +273,7 @@ test('API: MCP over HTTP needs a key', async () => {
     await api.close();
   }
 
-  const noKeys = await startApi({ TRUVIO_API_KEYS: '' });
+  const noKeys = await startApi({ EMAIL_CHEKKR_API_KEYS: '' });
   try {
     assert.equal((await noKeys.post('/mcp', { jsonrpc: '2.0', id: 1, method: 'ping' })).status, 503);
   } finally {
@@ -281,8 +281,8 @@ test('API: MCP over HTTP needs a key', async () => {
   }
 });
 
-test('EMAIL_CHEKKR_* settings work, and win over the older TRUVIO_* names', () => {
-  const c = loadConfig({ EMAIL_CHEKKR_API_KEYS: 'new-key', TRUVIO_API_KEYS: 'old-key', TRUVIO_PUBLIC_RATE_LIMIT: '7' });
-  assert.deepEqual([...c.apiKeys], ['new-key']);
+test('settings use the EMAIL_CHEKKR_ prefix', () => {
+  const c = loadConfig({ EMAIL_CHEKKR_API_KEYS: 'k1,k2', EMAIL_CHEKKR_PUBLIC_RATE_LIMIT: '7' });
+  assert.deepEqual([...c.apiKeys], ['k1', 'k2']);
   assert.equal(c.limits.publicPerWindow, 7);
 });

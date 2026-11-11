@@ -54,7 +54,7 @@
           </nav>
           <div class="docs-body">
             <h2 id="address">Address</h2>
-            <pre class="code"><code>https://truvio-api.onrender.com</code></pre>
+            <pre class="code"><code>https://email-chekkr-api.onrender.com</code></pre>
             <p class="notice">The API is in early access. On the free host it can take about 15 seconds to wake up after a quiet period.</p>
 
             <h2 id="limits">Limits</h2>
@@ -71,7 +71,7 @@
             <p>Every reply includes <code>RateLimit-Remaining</code> and <code>RateLimit-Reset</code>. Over the limit you get status 429 and a <code>Retry-After</code> header with the seconds to wait.</p>
 
             <h2 id="one">Check one email</h2>
-            <pre class="code"><code>curl "https://truvio-api.onrender.com/v1/verify?email=sample.user@gmial.com"</code></pre>
+            <pre class="code"><code>curl "https://email-chekkr-api.onrender.com/v1/verify?email=sample.user@gmial.com"</code></pre>
             <p>Reply:</p>
             <pre class="code"><code>{
   "email": "sample.user@gmial.com",
@@ -90,14 +90,14 @@
 }</code></pre>
 
             <h2 id="list">Check a list</h2>
-            <pre class="code"><code>curl -X POST https://truvio-api.onrender.com/v1/verify/batch \
+            <pre class="code"><code>curl -X POST https://email-chekkr-api.onrender.com/v1/verify/batch \
   -H "Content-Type: application/json" \
   -H "Authorization: Bearer YOUR_API_KEY" \
   -d '{"emails": ["sample.user@example.com", "hello@mailinator.com"]}'</code></pre>
             <p>You get a <code>summary</code> with the count of each result, and <code>results</code> in the same order you sent them.</p>
 
             <h2 id="domain">Check a domain</h2>
-            <pre class="code"><code>curl "https://truvio-api.onrender.com/v1/domain?domain=example.com"</code></pre>
+            <pre class="code"><code>curl "https://email-chekkr-api.onrender.com/v1/domain?domain=example.com"</code></pre>
             <p>Tells you if the domain exists, accepts email, its mail servers, and whether it's a temporary inbox or a free provider like Gmail.</p>
 
             <h2 id="endpoints">All endpoints</h2>
@@ -122,13 +122,13 @@
             <h2 id="mcp">Use Email Chekkr in AI tools (MCP)</h2>
             <p>Claude, Cursor and other AI tools can check emails with Email Chekkr. They get three tools: <code>verify_email</code>, <code>verify_emails_batch</code> and <code>check_domain</code>.</p>
             <p>To connect over the internet, add this server address in your AI tool and send your API key as a Bearer token:</p>
-            <pre class="code"><code>https://truvio-api.onrender.com/mcp</code></pre>
+            <pre class="code"><code>https://email-chekkr-api.onrender.com/mcp</code></pre>
             <p>To run it on your own computer instead, download the code and add this to your AI tool's MCP settings:</p>
             <pre class="code"><code>{
   "mcpServers": {
     "email-chekkr": {
       "command": "node",
-      "args": ["/full/path/to/Truvio-Email-verification/server/stdio.js"]
+      "args": ["/full/path/to/Email-Chekkr/server/stdio.js"]
     }
   }
 }</code></pre>
@@ -165,7 +165,7 @@
           <ul>
             <li><a href="contact.html">Contact</a></li>
             <li><a href="pricing.html#waitlist">Waitlist</a></li>
-            <li><a href="https://github.com/nexoradev-stack/Truvio-Email-verification">GitHub</a></li>
+            <li><a href="https://github.com/nexoradev-stack/Email-Chekkr">GitHub</a></li>
           </ul>
         </div>
         <div>

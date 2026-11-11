@@ -4,14 +4,14 @@
 
 <br><br>
 
-[![Website](https://img.shields.io/badge/website-live-8b7cff?style=flat-square)](https://nexoradev-stack.github.io/Truvio-Email-verification/)
-[![API](https://img.shields.io/badge/API-online-1fb57f?style=flat-square)](https://truvio-api.onrender.com/health)
+[![Website](https://img.shields.io/badge/website-live-8b7cff?style=flat-square)](https://nexoradev-stack.github.io/Email-Chekkr/)
+[![API](https://img.shields.io/badge/API-online-1fb57f?style=flat-square)](https://email-chekkr-api.onrender.com/health)
 [![MCP](https://img.shields.io/badge/MCP-AI%20tools-e39a2b?style=flat-square)](#-mcp-ai-tools)
-[![CI](https://github.com/nexoradev-stack/Truvio-Email-verification/actions/workflows/ci.yml/badge.svg)](https://github.com/nexoradev-stack/Truvio-Email-verification/actions/workflows/ci.yml)
+[![CI](https://github.com/nexoradev-stack/Email-Chekkr/actions/workflows/ci.yml/badge.svg)](https://github.com/nexoradev-stack/Email-Chekkr/actions/workflows/ci.yml)
 ![Node](https://img.shields.io/badge/node-20%2B-339933?style=flat-square&logo=node.js&logoColor=white)
 ![Dependencies](https://img.shields.io/badge/dependencies-none-5b4bdb?style=flat-square)
 
-[🌐 Website](https://nexoradev-stack.github.io/Truvio-Email-verification/) · [⚡ API docs](https://nexoradev-stack.github.io/Truvio-Email-verification/api.html) · [🏗️ Architecture](ARCHITECTURE.md) · [🚀 Run it locally](#-run-it-locally) · [🗺️ Roadmap](#️-roadmap) · [🙌 Credits](#-credits)
+[🌐 Website](https://nexoradev-stack.github.io/Email-Chekkr/) · [⚡ API docs](https://nexoradev-stack.github.io/Email-Chekkr/api.html) · [🏗️ Architecture](ARCHITECTURE.md) · [🚀 Run it locally](#-run-it-locally) · [🗺️ Roadmap](#️-roadmap) · [🙌 Credits](#-credits)
 
 </div>
 
@@ -99,7 +99,7 @@ Full details, with a diagram for every part, are in **[🏗️ ARCHITECTURE.md](
 ## ⚡ API in 10 seconds
 
 ```bash
-curl "https://truvio-api.onrender.com/v1/verify?email=sample.user@gmial.com"
+curl "https://email-chekkr-api.onrender.com/v1/verify?email=sample.user@gmial.com"
 ```
 
 | Endpoint | What it does |
@@ -116,7 +116,7 @@ curl "https://truvio-api.onrender.com/v1/verify?email=sample.user@gmial.com"
 | Emails per request | 50 | 500 |
 | AI tools (MCP) | — | ✅ |
 
-Send the key as `Authorization: Bearer <key>` (or `X-API-Key`). Full docs: **[API page](https://nexoradev-stack.github.io/Truvio-Email-verification/api.html)**.
+Send the key as `Authorization: Bearer <key>` (or `X-API-Key`). Full docs: **[API page](https://nexoradev-stack.github.io/Email-Chekkr/api.html)**.
 
 ### 📊 Capacity
 
@@ -135,17 +135,17 @@ Day and month figures assume non-stop use. The free server is shared by everyone
 
 Tools: `verify_email`, `verify_emails_batch`, `check_domain`.
 
-- **Remote:** `https://truvio-api.onrender.com/mcp` with `Authorization: Bearer <API key>`.
+- **Remote:** `https://email-chekkr-api.onrender.com/mcp` with `Authorization: Bearer <API key>`.
 - **Local:** `npm run mcp` (stdio). Example config: [`examples/mcp-config.json`](examples/mcp-config.json).
 
 ### ☁️ Deploy the API
 
-**Render (free plan):** Render → New → Blueprint → pick this repo. It uses [`render.yaml`](render.yaml) and the [`Dockerfile`](Dockerfile), and creates an API key for you (truvio-api → Environment).
+**Render (free plan):** Render → New → Blueprint → pick this repo. It uses [`render.yaml`](render.yaml) and the [`Dockerfile`](Dockerfile), and creates an API key for you (email-chekkr-api → Environment).
 Anything that runs Docker or Node 20+ works too (Railway, Fly.io, Google Cloud Run). All settings are environment variables — see [`.env.example`](.env.example).
 
 ### 🔐 Keys and secrets
 
-- API keys live **only** in the host's environment settings (on Render: truvio-api → Environment → `TRUVIO_API_KEYS`, or the new name `EMAIL_CHEKKR_API_KEYS`). They are never stored in this repository.
+- API keys live **only** in the host's environment settings (on Render: email-chekkr-api → Environment → `EMAIL_CHEKKR_API_KEYS`). They are never stored in this repository.
 - `.env` files are ignored by git. `.env.example` lists the settings with no real values.
 - Every push and pull request runs `npm run check:secrets`, which fails if a key, token or personal email address is found.
 - All email addresses in the code, docs and tests are made-up samples.
@@ -179,7 +179,7 @@ npm run update:disposable  # refresh the disposable domain list
 
 1. Repo **Settings → Pages → Source: GitHub Actions** (one time — done).
 2. Merge to `main`. The **Deploy site** workflow publishes the `site/` folder.
-3. Live at **https://nexoradev-stack.github.io/Truvio-Email-verification/**
+3. Live at **https://nexoradev-stack.github.io/Email-Chekkr/**
 
 ---
 

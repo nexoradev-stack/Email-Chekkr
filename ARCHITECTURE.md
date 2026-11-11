@@ -263,7 +263,7 @@ flowchart LR
 | Emails per batch | 50 | 500 |
 | MCP over HTTP | No | Yes |
 
-All numbers are settings (`.env.example`). `TRUVIO_PUBLIC_ACCESS=false` makes a key required everywhere. Keys are sent as `Authorization: Bearer <key>` or `X-API-Key`, and compared in constant time.
+All numbers are settings (`.env.example`). `EMAIL_CHEKKR_PUBLIC_ACCESS=false` makes a key required everywhere. Keys are sent as `Authorization: Bearer <key>` or `X-API-Key`, and compared in constant time.
 
 ### Capacity (measured on the live API, free Render plan)
 
