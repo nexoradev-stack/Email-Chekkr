@@ -4,7 +4,7 @@
 
 <br><br>
 
-[![Website](https://img.shields.io/badge/website-live-8b7cff?style=flat-square)](https://nexoradev-stack.github.io/Email-Chekkr/)
+[![Website](https://img.shields.io/badge/website-live-3952FF?style=flat-square)](https://nexoradev-stack.github.io/Email-Chekkr/)
 [![API](https://img.shields.io/badge/API-online-1fb57f?style=flat-square)](https://email-chekkr-api.onrender.com/health)
 [![MCP](https://img.shields.io/badge/MCP-AI%20tools-e39a2b?style=flat-square)](#-mcp-ai-tools)
 [![CI](https://github.com/nexoradev-stack/Email-Chekkr/actions/workflows/ci.yml/badge.svg)](https://github.com/nexoradev-stack/Email-Chekkr/actions/workflows/ci.yml)
