@@ -1,6 +1,6 @@
 <div align="center">
 
-<img src="docs/assets/banner.svg" alt="Truvio — Email verification. Clean lists. Fewer bounces." width="100%">
+<img src="docs/assets/banner.svg" alt="Email Chekkr — Email verification. Clean lists. Fewer bounces." width="100%">
 
 <br><br>
 
@@ -76,7 +76,7 @@ flowchart TB
 - 🌐 **Website:** checks run in the visitor's browser. CSV files are never uploaded. Lookups go to Google Public DNS (Cloudflare as a fallback).
 - ⚡ **API and 🤖 MCP:** a small Node.js server on Render that runs the same engine and uses Node's built-in DNS. No third-party verification service.
 - 🔒 **Privacy:** only the domain (for example `example.com`) is ever looked up — never the full address. The API never stores or logs addresses.
-- 🧾 **Safe downloads:** results are added as new CSV columns (`truvio_status`, `truvio_score`, `truvio_reason`, `truvio_suggestion`). Cells starting with `=`, `+`, `-` or `@` are escaped so spreadsheets don't run them as formulas.
+- 🧾 **Safe downloads:** results are added as new CSV columns (`chekkr_status`, `chekkr_score`, `chekkr_reason`, `chekkr_suggestion`). Cells starting with `=`, `+`, `-` or `@` are escaped so spreadsheets don't run them as formulas.
 
 Full details, with a diagram for every part, are in **[🏗️ ARCHITECTURE.md](ARCHITECTURE.md)**.
 
@@ -92,7 +92,7 @@ Full details, with a diagram for every part, are in **[🏗️ ARCHITECTURE.md](
 | ⚪ **Unknown** | The domain didn't answer in time. Check again later. |
 
 > [!NOTE]
-> Truvio doesn't log in to mail servers, so **"valid" means the address and its domain look deliverable**, not that the exact mailbox was confirmed.
+> Email Chekkr doesn't log in to mail servers, so **"valid" means the address and its domain look deliverable**, not that the exact mailbox was confirmed.
 
 ---
 
@@ -145,7 +145,7 @@ Anything that runs Docker or Node 20+ works too (Railway, Fly.io, Google Cloud R
 
 ### 🔐 Keys and secrets
 
-- API keys live **only** in the host's environment settings (on Render: truvio-api → Environment → `TRUVIO_API_KEYS`). They are never stored in this repository.
+- API keys live **only** in the host's environment settings (on Render: truvio-api → Environment → `TRUVIO_API_KEYS`, or the new name `EMAIL_CHEKKR_API_KEYS`). They are never stored in this repository.
 - `.env` files are ignored by git. `.env.example` lists the settings with no real values.
 - Every push and pull request runs `npm run check:secrets`, which fails if a key, token or personal email address is found.
 - All email addresses in the code, docs and tests are made-up samples.
@@ -154,9 +154,11 @@ Anything that runs Docker or Node 20+ works too (Railway, Fly.io, Google Cloud R
 
 ## 🎨 Design
 
-- **Font:** [Lexend](https://fonts.google.com/specimen/Lexend), chosen for easy reading.
-- **Light and dark mode:** follows the visitor's system setting, with a sun/moon toggle. The choice is remembered in the browser.
-- **3D hero:** envelopes travel through a scanning ring and come out marked valid (green), risky (amber) or invalid (red). Built with Three.js; it pauses when off-screen, shows a still frame for visitors who prefer reduced motion, and the page works without it.
+- **Colours:** Night Blue `#040A18`, 66° White `#FFFDF9`, Shark Grey `#B3C5D0` and 66° Blue `#3952FF`, with neutrals `#F3F2F0` `#ECECEC` `#E2E4E7` `#DBDDE1`. Green, amber and red appear only on results.
+- **Fonts:** [Inter](https://fonts.google.com/specimen/Inter) at weights 400 and 500 (no heavy bold), and [IBM Plex Mono](https://fonts.google.com/specimen/IBM+Plex+Mono) for small labels and code.
+- **Logo:** a 66° Blue sphere with a white tick inside a Night Blue rounded square (`site/assets/img/logo.svg`; flat version for the favicon).
+- **Light and dark mode:** follows the visitor's system setting, with a sun/moon toggle on every page. The choice is remembered in the browser.
+- **Hero:** a spinning globe with orbit rings and floating result chips, made in CSS only (no WebGL). It stops moving for visitors who prefer reduced motion.
 
 ---
 
@@ -185,13 +187,16 @@ npm run update:disposable  # refresh the disposable domain list
 
 ```text
 site/                       the website (published to GitHub Pages)
-├── index.html              home: single check, bulk CSV check, result guide, FAQ
-├── api.html                API docs
-├── pricing.html  about.html  contact.html  privacy.html  terms.html  404.html
+├── index.html              home: single check, what we check, result guide, FAQ
+├── bulk.html               bulk CSV check
+├── pricing.html            plans and waitlist form
+├── api.html                API and MCP docs
+├── contact.html            contact form
+├── privacy.html  terms.html  404.html
 └── assets/
     ├── css/styles.css
-    ├── js/app.js           page behaviour, theme toggle
-    ├── js/scene.js         3D hero animation (Three.js)
+    ├── js/app.js           page behaviour, theme toggle, forms
+    ├── js/config.js        form settings (Web3Forms access key)
     ├── js/engine/          the checking engine (runs in browsers and Node)
     │   ├── syntax.js       format rules
     │   ├── typo.js         "did you mean …?" suggestions
@@ -200,8 +205,8 @@ site/                       the website (published to GitHub Pages)
     │   ├── lists.js        team addresses, free providers, typo targets
     │   └── csv.js          CSV reading/writing
     ├── data/disposable-domains.txt
-    ├── data/truvio-sample.csv
-    └── img/favicon.svg
+    ├── data/email-chekkr-sample.csv
+    └── img/                logo.svg, favicon.svg, icon-512.png
 server/                     the API and MCP server (Node built-ins only)
 ├── index.js                starts the HTTP server
 ├── app.js                  routes, API keys, CORS, limits
@@ -241,4 +246,4 @@ Disposable domain data: [disposable-email-domains](https://github.com/disposable
 
 ## 📄 Licence
 
-© 2026 Truvio. All rights reserved. The source is published for transparency; no licence to reuse it is granted.
+© 2026 Email Chekkr. All rights reserved. The source is published for transparency; no licence to reuse it is granted.

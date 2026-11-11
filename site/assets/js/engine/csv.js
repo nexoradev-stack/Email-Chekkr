@@ -1,4 +1,4 @@
-// Truvio — CSV reading and writing for bulk checks (runs entirely in the browser).
+// Email Chekkr — CSV reading and writing for bulk checks (runs entirely in the browser).
 
 /** Parses CSV text into rows of fields. Handles quotes, commas and line breaks inside quotes. */
 export function parseCsv(text) {

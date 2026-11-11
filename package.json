@@ -1,8 +1,8 @@
 {
-  "name": "truvio",
-  "version": "0.2.0",
+  "name": "email-chekkr",
+  "version": "0.3.0",
   "private": true,
-  "description": "Truvio \u2014 Email verification. Website, REST API and MCP server that check format, domain, mail server, disposable domains, role addresses and typos.",
+  "description": "Email Chekkr — Email verification. Website, REST API and MCP server that check format, domain, mail server, disposable domains, role addresses and typos.",
   "type": "module",
   "engines": {
     "node": ">=20"
@@ -16,6 +16,6 @@
     "check:secrets": "node scripts/check-secrets.js"
   },
   "bin": {
-    "truvio-mcp": "./server/stdio.js"
+    "email-chekkr-mcp": "./server/stdio.js"
   }
 }

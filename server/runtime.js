@@ -1,4 +1,4 @@
-// Truvio API — wires the pieces together (shared by the HTTP server and the stdio MCP server).
+// Email Chekkr API — wires the pieces together (shared by the HTTP server and the stdio MCP server).
 
 import { readFile } from 'node:fs/promises';
 import { fileURLToPath } from 'node:url';

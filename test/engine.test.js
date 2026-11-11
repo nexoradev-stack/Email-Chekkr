@@ -1,4 +1,4 @@
-// Truvio engine tests. Run with: npm test (no network needed — DNS is faked).
+// Email Chekkr engine tests. Run with: npm test (no network needed — DNS is faked).
 
 import test from 'node:test';
 import assert from 'node:assert/strict';

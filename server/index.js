@@ -1,5 +1,5 @@
 #!/usr/bin/env node
-// Truvio API — starts the HTTP server.  Run: npm start
+// Email Chekkr API — starts the HTTP server.  Run: npm start
 
 import { createServer } from 'node:http';
 import { loadConfig } from './config.js';
@@ -19,7 +19,7 @@ server.listen(config.port, config.host, () => {
   const { port } = server.address();
   jsonLog({
     level: 'info',
-    msg: 'Truvio API started',
+    msg: 'Email Chekkr API started',
     url: `http://${config.host === '0.0.0.0' ? 'localhost' : config.host}:${port}`,
     disposable_domains: disposableCount,
     api_keys: config.apiKeys.size,

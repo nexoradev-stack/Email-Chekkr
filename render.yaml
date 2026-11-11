@@ -1,4 +1,4 @@
-# Truvio API — Render Blueprint (free plan works).
+# Email Chekkr API — Render Blueprint (free plan works).
 # In Render: New → Blueprint → pick this repository. Render builds the Dockerfile and gives you an https://….onrender.com address.
 # Nothing here deploys by itself.
 

@@ -1,4 +1,4 @@
-// Truvio API — HTTP routes. Built on Node's own http module (no framework needed).
+// Email Chekkr API — HTTP routes. Built on Node's own http module (no framework needed).
 //
 //   GET  /                  short description and links
 //   GET  /health            for the host's health checks
@@ -162,7 +162,7 @@ export function createApp({ config, service, log = () => {}, now = Date.now }) {
       return send(res, 200, {
         name: SERVER_INFO.title,
         version: SERVER_INFO.version,
-        docs: 'https://nexoradev-stack.github.io/Truvio-Email-verification/api.html',
+        docs: 'https://nexoradev-stack.github.io/Email Chekkr-Email-verification/api.html',
         endpoints: ['GET /v1/verify?email=', 'POST /v1/verify', 'POST /v1/verify/batch', 'GET /v1/domain?domain=', 'POST /mcp']
       });
     }
@@ -200,7 +200,7 @@ export function createApp({ config, service, log = () => {}, now = Date.now }) {
         return send(res, 405, { error: { code: 'method_not_allowed', message: 'Use POST for MCP requests.' } }, { Allow: 'POST' });
       }
       if (config.apiKeys.size === 0) {
-        throw new HttpError(503, 'mcp_disabled', 'MCP over HTTP needs at least one API key (set TRUVIO_API_KEYS).');
+        throw new HttpError(503, 'mcp_disabled', 'MCP over HTTP needs at least one API key (set EMAIL_CHEKKR_API_KEYS).');
       }
       admit(req, res, { requireKey: true });
       const body = await readJson(req, limits.maxBodyBytes);

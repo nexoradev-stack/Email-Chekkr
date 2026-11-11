@@ -1,4 +1,4 @@
-// Truvio — "Did you mean …?" suggestions for mistyped domains.
+// Email Chekkr — "Did you mean …?" suggestions for mistyped domains.
 
 import { TYPO_TARGETS, TLD_FIXES } from './lists.js';
 

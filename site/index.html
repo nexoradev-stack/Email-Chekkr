@@ -3,208 +3,166 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>Truvio — Email verification</title>
-  <meta name="description" content="Check one email or a whole list before you send. Truvio checks the format, the domain, the mail server, temporary inboxes, team addresses and typos.">
-  <meta property="og:title" content="Truvio — Email verification">
-  <meta property="og:description" content="Clean lists. Fewer bounces. Check one email or a whole CSV before you send.">
+  <title>Email Chekkr · Check every email before you send</title>
+  <meta name="description" content="Check one email or a whole list before you send. Email Chekkr checks the format, domain, mail server, temporary inboxes, team addresses and typos.">
+  <meta property="og:title" content="Email Chekkr · Check every email before you send">
+  <meta property="og:description" content="Check one email or a whole list before you send. Email Chekkr checks the format, domain, mail server, temporary inboxes, team addresses and typos.">
   <meta property="og:type" content="website">
-  <meta name="theme-color" content="#5b4bdb">
-  <script>try{var t=localStorage.getItem('truvio-theme');if(t==='light'||t==='dark')document.documentElement.setAttribute('data-theme',t)}catch(e){}</script>
+  <meta name="theme-color" content="#040A18">
+  <script>try{var t=localStorage.getItem('email-chekkr-theme');if(t==='light'||t==='dark')document.documentElement.setAttribute('data-theme',t)}catch(e){}</script>
   <link rel="icon" href="assets/img/favicon.svg" type="image/svg+xml">
+  <link rel="apple-touch-icon" href="assets/img/icon-512.png">
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Lexend:wght@300;350;400;450;500;550;600;650;700&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500&family=IBM+Plex+Mono:wght@400;500&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="assets/css/styles.css">
   <script type="module" src="assets/js/app.js"></script>
 </head>
 <body>
   <a class="skip" href="#main">Skip to content</a>
-
   <header class="site-header">
     <div class="wrap">
-      <a class="wordmark" href="./" aria-label="Truvio home">tru<svg class="check" viewBox="0 0 24 24" aria-hidden="true"><path d="M3.5 12.5l5.5 5.5L20.5 5" fill="none" stroke-width="4" stroke-linecap="round" stroke-linejoin="round"/></svg>io</a>
+      <a class="brand" href="./" aria-label="Email Chekkr home"><svg viewBox="0 0 64 64" aria-hidden="true"><defs><radialGradient id="lg-h" cx="0.36" cy="0.3" r="0.75"><stop offset="0" stop-color="#9AA8FF"/><stop offset="0.45" stop-color="#3952FF"/><stop offset="1" stop-color="#18237E"/></radialGradient></defs><rect width="64" height="64" rx="16" fill="#040A18"/><circle cx="32" cy="32" r="19" fill="url(#lg-h)"/><ellipse cx="26" cy="23" rx="6" ry="3.5" fill="#FFFDF9" opacity="0.28" transform="rotate(-25 26 23)"/><path d="M24.5 32.5l5.5 5.5 10-11" fill="none" stroke="#FFFDF9" stroke-width="4.4" stroke-linecap="round" stroke-linejoin="round"/></svg><span><span class="w1">Email </span><span class="w2">Chekkr</span></span></a>
       <nav class="nav" id="site-nav" aria-label="Main">
-        <a href="#how">How it works</a>
-        <a href="#bulk">Check a list</a>
-        <a href="#results">Results</a>
+        <a href="./" aria-current="page">Check an email</a>
+        <a href="bulk.html">Bulk check</a>
         <a href="pricing.html">Pricing</a>
         <a href="api.html">API</a>
-        <a href="about.html">About</a>
+        <a href="contact.html">Contact</a>
       </nav>
       <div class="header-actions">
-        <button class="theme-toggle" type="button" aria-label="Switch between light and dark mode">
-          <svg class="moon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M21 12.8A9 9 0 1 1 11.2 3a7 7 0 0 0 9.8 9.8z"/></svg>
-          <svg class="sun" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="4"/><path d="M12 2v2M12 20v2M4.9 4.9l1.4 1.4M17.7 17.7l1.4 1.4M2 12h2M20 12h2M4.9 19.1l1.4-1.4M17.7 6.3l1.4-1.4"/></svg>
-        </button>
-        <a class="btn btn-primary btn-sm" href="#check">Check an email</a>
-        <button class="menu-toggle" type="button" aria-expanded="false" aria-controls="site-nav">Menu</button>
+        <button class="icon-btn theme-toggle" type="button" aria-label="Switch theme"><svg class="sun" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><circle cx="12" cy="12" r="4.2"/><path d="M12 2.5v2.2M12 19.3v2.2M4.6 4.6l1.6 1.6M17.8 17.8l1.6 1.6M2.5 12h2.2M19.3 12h2.2M4.6 19.4l1.6-1.6M17.8 6.2l1.6-1.6"/></svg><svg class="moon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round"><path d="M20 14.5A8.5 8.5 0 0 1 9.5 4a8.5 8.5 0 1 0 10.5 10.5z"/></svg></button>
+        <a class="btn btn-primary btn-sm" href="pricing.html#waitlist">Join the waitlist</a>
+        <button class="icon-btn menu-toggle" type="button" aria-label="Menu" aria-expanded="false" aria-controls="site-nav"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><path d="M4 7h16M4 12h16M4 17h16"/></svg></button>
       </div>
     </div>
   </header>
 
   <main id="main">
-    <section class="hero" id="check" aria-labelledby="hero-title">
-      <div class="wrap hero-grid">
-        <div class="hero-copy">
-          <h1 id="hero-title">Clean lists. Fewer bounces.</h1>
-          <p class="lede">Check an email before you send to it. Truvio looks at the format, the domain, its mail server, temporary inboxes, team addresses and typos.</p>
+    <section class="hero">
+      <div class="wrap">
+        <div class="hero-grid">
+          <div class="hero-copy">
+            <span class="eyebrow">Email verification</span>
+            <h1>Check every email <span class="accent">before you send.</span></h1>
+            <p class="lede">Email Chekkr checks the format, the domain, the mail server, temporary inboxes, team addresses and typos. One address or a whole list, in seconds.</p>
+            <div class="hero-actions">
+              <a class="btn btn-primary" href="#check">Check an email</a>
+              <a class="btn btn-secondary" href="bulk.html">Check a CSV list</a>
+            </div>
+            <p class="hero-note">Free for single checks. No sign-up.</p>
+          </div>
+          <div class="hero-visual" aria-hidden="true">
+            <div class="orbit o1"><div class="spin"><span class="sat"></span></div></div>
+            <div class="orbit o3"><div class="spin"><span class="sat" style="background:var(--valid);box-shadow:0 0 14px var(--valid)"></span></div></div>
+            <div class="globe"><span class="tick"><svg viewBox="0 0 24 24" fill="none" stroke="#FFFDF9" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12.5l4.5 4.5L19 7.5"/></svg></span></div>
+            <div class="orbit o2"><div class="spin"><span class="sat"></span></div></div>
+            <span class="chip c1"><span class="dot" style="background:#5BD69B"></span>anna@northwind.com · Valid</span>
+            <span class="chip c2"><span class="dot" style="background:#F5B74A"></span>jo@gmial.com · Typo</span>
+            <span class="chip c3"><span class="dot" style="background:#F5B74A"></span>info@shop.co · Team inbox</span>
+            <span class="chip c4"><span class="dot" style="background:#FF8A8A"></span>sam@nowhere.zzz · Invalid</span>
+          </div>
+        </div>
 
-          <form class="checker" id="single-form" novalidate>
-            <label for="single-input">Email address</label>
-            <input id="single-input" name="email" type="email" inputmode="email" autocomplete="off" spellcheck="false"
-                   placeholder="sample.user@example.com" maxlength="320" required>
-            <button class="btn btn-primary" type="submit">Check email</button>
+        <div class="checker-card" id="check">
+          <form id="single-form" novalidate>
+            <label class="checker-label" for="single-input">Email address</label>
+            <div class="checker">
+              <input id="single-input" name="email" type="email" inputmode="email" autocomplete="off" autocapitalize="off" spellcheck="false" placeholder="name@company.com" required>
+              <button class="btn btn-primary" type="submit">Check</button>
+            </div>
           </form>
           <div class="try">
             <span>Try:</span>
+            <button type="button" data-try="sample.user@gmail.com">sample.user@gmail.com</button>
             <button type="button" data-try="sample.user@gmial.com">sample.user@gmial.com</button>
-            <button type="button" data-try="info@github.com">info@github.com</button>
-            <button type="button" data-try="hello@mailinator.com">hello@mailinator.com</button>
-          </div>
-        </div>
-
-        <div class="scene" id="scene">
-          <div class="scene-caption" aria-hidden="true">
-            <span style="--c: var(--valid)">Valid</span>
-            <span style="--c: var(--risky)">Risky</span>
-            <span style="--c: var(--invalid)">Invalid</span>
-          </div>
-        </div>
-      </div>
-    </section>
-
-    <div class="result-panel" id="result-panel" hidden>
-      <div class="wrap">
-        <div class="result-card" aria-live="polite">
-          <div class="result-top">
-            <div class="address" id="address"></div>
-            <div class="verdict" id="verdict" hidden></div>
-          </div>
-          <p class="reason-line" id="reason-line" hidden></p>
-          <ul class="checklist" id="checklist"></ul>
-        </div>
-      </div>
-    </div>
-
-    <section class="section" id="how" aria-labelledby="how-title">
-      <div class="wrap">
-        <div class="section-head">
-          <h2 id="how-title">How it works</h2>
-          <p>From a messy list to one you can send to, in three steps.</p>
-        </div>
-        <ol class="steps">
-          <li>
-            <h3>Add your emails</h3>
-            <p>Type one address, or upload a CSV of up to 10,000 rows. Truvio finds the email column for you.</p>
-          </li>
-          <li>
-            <h3>Truvio checks each one</h3>
-            <p>Format, domain, mail server, temporary inboxes, team addresses and typos. Each address gets a result and a score.</p>
-          </li>
-          <li>
-            <h3>Download a clean list</h3>
-            <p>Get your file back with the results added, or download only the valid addresses.</p>
-          </li>
-        </ol>
-      </div>
-    </section>
-
-    <section class="section" id="bulk" aria-labelledby="bulk-title">
-      <div class="wrap">
-        <div class="section-head">
-          <h2 id="bulk-title">Check a whole list</h2>
-          <p>Your file stays on your computer. It's checked in your browser and never uploaded.</p>
-        </div>
-
-        <div class="bulk-grid">
-          <div>
-            <label class="drop" id="drop">
-              <input id="csv-input" type="file" accept=".csv,text/csv">
-              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M14 3H7a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2V8z"/><path d="M14 3v5h5M12 18v-6M9 15l3-3 3 3"/></svg>
-              <strong>Choose a CSV file</strong>
-              <span class="muted">or drag it here. Up to 10,000 rows.</span>
-            </label>
-            <p class="bulk-notes">
-              A header like "Email" helps Truvio find the right column.
-              Need a file to try? <a href="assets/data/truvio-sample.csv" download>Download a sample CSV</a>.
-            </p>
-            <div class="notice" id="bulk-error" role="alert" hidden></div>
+            <button type="button" data-try="info@example.com">info@example.com</button>
+            <button type="button" data-try="someone@mailinator.com">someone@mailinator.com</button>
           </div>
 
-          <div class="panel" id="bulk-panel" aria-live="polite">
-            <p class="empty" id="bulk-empty">Results will appear here.</p>
-            <div id="bulk-progress" hidden>
-              <p id="bulk-progress-text">Checking…</p>
-              <div class="progress"><span id="bulk-progress-bar"></span></div>
-              <button class="btn btn-secondary btn-sm" type="button" id="bulk-cancel">Stop checking</button>
+          <div class="result-card" id="result-panel" hidden aria-live="polite">
+            <div class="result-top">
+              <div class="address" id="address"></div>
+              <div class="verdict" id="verdict" hidden></div>
             </div>
-            <div id="bulk-result" hidden>
-              <p id="bulk-file-name" class="muted"></p>
-              <div class="summary-bar" id="summary-bar" aria-hidden="true"></div>
-              <ul class="counts" id="counts"></ul>
-              <div class="bulk-actions">
-                <button class="btn btn-primary btn-sm" type="button" id="download-all">Download all results</button>
-                <button class="btn btn-secondary btn-sm" type="button" id="download-valid">Download valid only</button>
-              </div>
-              <div class="table-wrap">
-                <table>
-                  <caption id="table-caption"></caption>
-                  <thead><tr><th scope="col">Email</th><th scope="col">Result</th><th scope="col">Why</th></tr></thead>
-                  <tbody id="preview-rows"></tbody>
-                </table>
-              </div>
-            </div>
+            <p class="reason-line" id="reason-line" hidden></p>
+            <ul class="checklist" id="checklist"></ul>
+          </div>
+
+          <div class="checker-foot">
+            <span>Only the part after the @ is looked up. The address stays in your browser.</span>
+            <a href="bulk.html">Have a list? Check a CSV →</a>
           </div>
         </div>
-      </div>
-    </section>
-
-    <section class="section" id="results" aria-labelledby="results-title">
-      <div class="wrap">
-        <div class="section-head">
-          <h2 id="results-title">What each result means</h2>
-          <p>Every address gets one of four results and a score from 0 to 100.</p>
-        </div>
-        <ul class="legend">
-          <li style="--c: var(--valid)">
-            <h3>Valid</h3>
-            <p>Well-formed, and the domain has a working mail server. No warning signs. Safe to send.</p>
-          </li>
-          <li style="--c: var(--risky)">
-            <h3>Risky</h3>
-            <p>The domain takes email, but something is off: a temporary inbox, a team address like info@, a likely typo, or no mail server record.</p>
-          </li>
-          <li style="--c: var(--invalid)">
-            <h3>Invalid</h3>
-            <p>Badly formed, or the domain doesn't exist or doesn't accept email. Sending will bounce.</p>
-          </li>
-          <li style="--c: var(--unknown)">
-            <h3>Unknown</h3>
-            <p>The domain didn't answer in time. Check it again later before removing it.</p>
-          </li>
-        </ul>
       </div>
     </section>
 
     <section class="section" aria-labelledby="checks-title">
+      <div class="wrap">
+        <div class="section-head">
+          <span class="eyebrow">What we check</span>
+          <h2 id="checks-title">Six checks on every address</h2>
+          <p>Each one catches a different reason emails bounce or land badly.</p>
+        </div>
+        <div class="grid-3">
+          <article class="card"><span class="num">01</span><h3>Format</h3><p>The address is written correctly, with one @ and a real-looking domain.</p></article>
+          <article class="card"><span class="num">02</span><h3>Domain</h3><p>The domain exists. Made-up and expired domains are caught here.</p></article>
+          <article class="card"><span class="num">03</span><h3>Mail server</h3><p>The domain has a mail server that accepts email.</p></article>
+          <article class="card"><span class="num">04</span><h3>Temporary inboxes</h3><p>Flags throwaway addresses from 10,000+ known disposable services.</p></article>
+          <article class="card"><span class="num">05</span><h3>Team addresses</h3><p>Spots shared inboxes like info@ or sales@ that rarely reach one person.</p></article>
+          <article class="card"><span class="num">06</span><h3>Typos</h3><p>Catches slips like gmial.com or company.con and suggests the fix.</p></article>
+        </div>
+      </div>
+    </section>
+
+    <section class="section" aria-labelledby="how-title">
+      <div class="wrap">
+        <div class="section-head">
+          <span class="eyebrow">How it works</span>
+          <h2 id="how-title">From a messy list to one you can send to</h2>
+        </div>
+        <ol class="steps">
+          <li><h3>Add your emails</h3><p>Type one address, or drop a CSV exported from your CRM or spreadsheet.</p></li>
+          <li><h3>Email Chekkr checks each one</h3><p>Six checks run in your browser. Only domains are looked up, never full addresses.</p></li>
+          <li><h3>Download a clean list</h3><p>Get your file back with a result, score and reason for every row, or only the valid ones.</p></li>
+        </ol>
+      </div>
+    </section>
+
+    <section class="section" aria-labelledby="results-title">
+      <div class="wrap">
+        <div class="section-head">
+          <span class="eyebrow">Results</span>
+          <h2 id="results-title">What each result means</h2>
+          <p>Every address gets one of four results and a score from 0 to 100.</p>
+        </div>
+        <ul class="legend">
+          <li style="--c: var(--valid)"><h3>Valid</h3><p>Written correctly, and the domain has a working mail server. No warning signs. Safe to send.</p></li>
+          <li style="--c: var(--risky)"><h3>Risky</h3><p>The domain takes email, but something is off: a temporary inbox, a team address like info@, a likely typo, or no mail server record.</p></li>
+          <li style="--c: var(--invalid)"><h3>Invalid</h3><p>Badly written, or the domain doesn't exist or doesn't accept email. Sending will bounce.</p></li>
+          <li style="--c: var(--unknown)"><h3>Unknown</h3><p>The domain didn't answer in time. Check it again later before removing it.</p></li>
+        </ul>
+      </div>
+    </section>
+
+    <section class="section" aria-labelledby="private-title">
       <div class="wrap split">
         <div>
-          <h2 id="checks-title">What Truvio checks</h2>
+          <span class="eyebrow">Private by design</span>
+          <h2 id="private-title" style="margin-top:14px">Your list stays with you</h2>
           <ul class="ticks">
-            <li>The address is written correctly</li>
-            <li>The domain exists</li>
-            <li>The domain has a mail server that accepts email</li>
-            <li>The domain isn't a temporary inbox (10,000+ known services)</li>
-            <li>The address isn't a team inbox like info@ or sales@</li>
-            <li>Common typos, like gmial.com or company.con</li>
+            <li>Checks run in your browser. Your CSV is never uploaded.</li>
+            <li>Only the domain is looked up, for example example.com, never the full address.</li>
+            <li>No cookies, no analytics, no ad trackers.</li>
           </ul>
         </div>
         <div>
-          <h2>What it doesn't do</h2>
+          <span class="eyebrow">Good to know</span>
+          <h2 style="margin-top:14px">What it doesn't do</h2>
           <ul class="ticks no">
             <li>It doesn't log in to mail servers, so "valid" means the address and domain look deliverable, not that this exact mailbox was confirmed.</li>
             <li>It never sends an email to anyone on your list.</li>
-            <li>It doesn't store your addresses. Only the part after the @ is looked up.</li>
+            <li>It doesn't store your addresses anywhere.</li>
           </ul>
         </div>
       </div>
@@ -213,50 +171,63 @@
     <section class="section" aria-labelledby="faq-title">
       <div class="wrap">
         <div class="section-head">
+          <span class="eyebrow">FAQ</span>
           <h2 id="faq-title">Questions</h2>
         </div>
         <div class="faq">
-          <details>
-            <summary>Is my list uploaded anywhere?</summary>
-            <p>No. Your CSV is read and checked inside your browser. To see if a domain receives email, Truvio asks a public DNS service about the domain only (for example example.com), never the full address.</p>
-          </details>
-          <details>
-            <summary>Why is an address "risky" and not "valid"?</summary>
-            <p>Its domain takes email, but there's a warning sign: a temporary inbox, a team address, a likely typo, or no mail server record. You decide whether to keep it.</p>
-          </details>
-          <details>
-            <summary>How many addresses can I check?</summary>
-            <p>Up to 10,000 rows per file. Bigger lists can be split into several files.</p>
-          </details>
-          <details>
-            <summary>Does it cost anything?</summary>
-            <p>Truvio is free during early access. See <a href="pricing.html">Pricing</a> for what's coming.</p>
-          </details>
+          <details><summary>Is my list uploaded anywhere?</summary><p>No. Your CSV is read and checked inside your browser. To see if a domain receives email, Email Chekkr asks a public DNS service about the domain only (for example example.com), never the full address.</p></details>
+          <details><summary>Why is an address "risky" and not "valid"?</summary><p>Its domain takes email, but there's a warning sign: a temporary inbox, a team address, a likely typo, or no mail server record. You decide whether to keep it.</p></details>
+          <details><summary>How many addresses can I check?</summary><p>Single checks are unlimited. A CSV can have up to 10,000 rows; bigger lists can be split into several files.</p></details>
+          <details><summary>Does it cost anything?</summary><p>Single checks are free. Bulk checks are free during early access, and paid plans from $5 are coming. See <a href="pricing.html">Pricing</a>.</p></details>
+          <details><summary>Can I use it from my own app or an AI tool?</summary><p>Yes. There's a REST API and an MCP server for Claude, Cursor and other AI tools. See the <a href="api.html">API docs</a>.</p></details>
         </div>
-      </div>
-    </section>
-
-    <section class="band" aria-labelledby="band-title">
-      <div class="wrap">
-        <div class="inner">
-          <h2 id="band-title">Check your list before your next send.</h2>
-          <a class="btn" href="#bulk">Upload a CSV</a>
-        </div>
+        <section class="band" aria-labelledby="band-title">
+          <div>
+            <h2 id="band-title">Clean your list before your next send.</h2>
+            <p>Single checks are free. Bulk plans from $5 are coming soon.</p>
+          </div>
+          <a class="btn" href="pricing.html#waitlist">Join the waitlist</a>
+        </section>
       </div>
     </section>
   </main>
 
   <footer class="site-footer">
     <div class="wrap">
-      <span>© <span data-year>2026</span> Truvio — Email verification</span>
-      <nav aria-label="Footer">
-        <a href="pricing.html">Pricing</a>
-        <a href="api.html">API</a>
-        <a href="about.html">About</a>
-        <a href="contact.html">Contact</a>
-        <a href="privacy.html">Privacy</a>
-        <a href="terms.html">Terms</a>
-      </nav>
+      <div class="footer-grid">
+        <div>
+          <a class="brand" href="./" aria-label="Email Chekkr home"><svg viewBox="0 0 64 64" aria-hidden="true"><defs><radialGradient id="lg-f" cx="0.36" cy="0.3" r="0.75"><stop offset="0" stop-color="#9AA8FF"/><stop offset="0.45" stop-color="#3952FF"/><stop offset="1" stop-color="#18237E"/></radialGradient></defs><rect width="64" height="64" rx="16" fill="#040A18"/><circle cx="32" cy="32" r="19" fill="url(#lg-f)"/><ellipse cx="26" cy="23" rx="6" ry="3.5" fill="#FFFDF9" opacity="0.28" transform="rotate(-25 26 23)"/><path d="M24.5 32.5l5.5 5.5 10-11" fill="none" stroke="#FFFDF9" stroke-width="4.4" stroke-linecap="round" stroke-linejoin="round"/></svg><span><span class="w1">Email </span><span class="w2">Chekkr</span></span></a>
+          <p>Check every email before you send. Fewer bounces, a cleaner sender reputation, and your list never leaves your browser.</p>
+        </div>
+        <div>
+          <h4>Product</h4>
+          <ul>
+            <li><a href="./">Check an email</a></li>
+            <li><a href="bulk.html">Bulk check</a></li>
+            <li><a href="pricing.html">Pricing</a></li>
+            <li><a href="api.html">API and AI tools</a></li>
+          </ul>
+        </div>
+        <div>
+          <h4>Company</h4>
+          <ul>
+            <li><a href="contact.html">Contact</a></li>
+            <li><a href="pricing.html#waitlist">Waitlist</a></li>
+            <li><a href="https://github.com/nexoradev-stack/Truvio-Email-verification">GitHub</a></li>
+          </ul>
+        </div>
+        <div>
+          <h4>Legal</h4>
+          <ul>
+            <li><a href="privacy.html">Privacy</a></li>
+            <li><a href="terms.html">Terms</a></li>
+          </ul>
+        </div>
+      </div>
+      <div class="footer-base">
+        <span>© <span data-year>2026</span> Email Chekkr</span>
+        <span>No cookies. No tracking. Checks run in your browser.</span>
+      </div>
     </div>
   </footer>
 </body>

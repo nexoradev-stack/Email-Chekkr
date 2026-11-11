@@ -1,4 +1,4 @@
-# Truvio API — container image. No npm packages are needed: the server uses only Node's built-in modules.
+# Email Chekkr API — container image. No npm packages are needed: the server uses only Node's built-in modules.
 FROM node:22-alpine
 
 ENV NODE_ENV=production \

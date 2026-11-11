@@ -1,6 +1,6 @@
-# Truvio — Architecture
+# Email Chekkr — Architecture
 
-Truvio has two parts that share one checking engine:
+Email Chekkr has two parts that share one checking engine:
 
 1. **The website** — static, on GitHub Pages; checks run in the visitor's browser.
 2. **The API server** — a small Node.js server with a REST API and an MCP server for AI tools; checks run on the server with Node's built-in DNS.
@@ -51,13 +51,13 @@ flowchart TB
 
 ## 1. The website (browser-only)
 
-Truvio is a **static website**. There is no Truvio server. All checks run in the visitor's browser, and the site is hosted for free on GitHub Pages.
+Email Chekkr is a **static website**. There is no Email Chekkr server. All checks run in the visitor's browser, and the site is hosted for free on GitHub Pages.
 
 ```mermaid
 flowchart LR
   U["🌐 Visitor's browser"] -->|loads HTML, CSS, JS| GP[GitHub Pages<br/>static site]
-  U -->|loads Lexend font| GF[Google Fonts]
-  U -->|loads Three.js for the 3D hero| CDN[jsDelivr CDN]
+  U -->|loads Inter and IBM Plex Mono| GF[Google Fonts]
+  U -->|contact and waitlist forms only| WF[Web3Forms]
   U -->|domain only, e.g. example.com| G[Google DNS-over-HTTPS<br/>dns.google]
   U -.->|fallback if Google fails| C[Cloudflare DNS-over-HTTPS<br/>cloudflare-dns.com]
   classDef web fill:#8b7cff,stroke:#5b4bdb,color:#ffffff,stroke-width:2px
@@ -72,7 +72,7 @@ flowchart LR
   classDef unknown fill:#6b7090,stroke:#6b7090,color:#ffffff
   classDef step fill:#eef0f8,stroke:#8b7cff,color:#1b1d3a
   class U web
-  class GP,GF,CDN ext
+  class GP,GF,WF ext
   class G,C dns
 ```
 
@@ -81,7 +81,8 @@ flowchart LR
 | Part | Where it runs | Notes |
 |---|---|---|
 | Pages, styles, theme toggle | Browser | `site/*.html`, `assets/css/styles.css`, `assets/js/app.js` |
-| 3D hero animation | Browser (WebGL) | `assets/js/scene.js`, Three.js 0.160.0. Pauses when off-screen; still frame for reduced motion; the page works without WebGL. |
+| Spinning-globe hero | Browser (CSS only) | In `assets/css/styles.css`. No WebGL or third-party script; stops for reduced motion. |
+| Contact and waitlist forms | Browser → Web3Forms | `assets/js/config.js` holds the public access key. Nothing is sent until a visitor submits a form. |
 | Verification engine | Browser (and Node for tests) | `assets/js/engine/*` — plain ES modules, no dependencies |
 | Domain lookups | Google / Cloudflare public DNS | Only the part after the `@` is sent |
 | Disposable domain list | Static file | `assets/data/disposable-domains.txt` (10,000+ domains, CC0) |
@@ -168,7 +169,7 @@ sequenceDiagram
 
 - The full address never leaves the browser. Only the domain is sent to Google or Cloudflare DNS.
 - No cookies, no analytics, no accounts.
-- The only thing stored is the light/dark choice (`localStorage` key `truvio-theme`).
+- The only thing stored is the light/dark choice (`localStorage` key `email-chekkr-theme`).
 
 ### Build, test and deploy
 
@@ -202,7 +203,7 @@ flowchart LR
 
 ### Limits of the website
 
-- Domain-level checks only. Truvio doesn't connect to mail servers (no SMTP mailbox check), so "valid" means the address and domain look deliverable.
+- Domain-level checks only. Email Chekkr doesn't connect to mail servers (no SMTP mailbox check), so "valid" means the address and domain look deliverable.
 - Speed depends on the visitor's connection and the public DNS services.
 - The website itself has no usage limits (there is no server behind it). The API has limits — see below.
 
@@ -217,7 +218,7 @@ flowchart LR
   App[Your app or script] -->|REST + optional API key| S
   AI[AI tools<br/>Claude, Cursor…] -->|MCP over HTTP + API key| S
   Local[AI app on your computer] -->|MCP over stdio| L[server/stdio.js]
-  subgraph S[Truvio API server — server/index.js]
+  subgraph S[Email Chekkr API server — server/index.js]
     R[Routes + limits<br/>app.js, rate-limit.js] --> Svc[service.js]
     M[MCP handler<br/>mcp.js] --> Svc
   end
@@ -307,7 +308,7 @@ Pricing is not decided yet. The site shows "Free during early access".
 ```mermaid
 flowchart LR
   U[Browser] --> S[Static site<br/>GitHub Pages]
-  U -->|sign in, buy credits| API[Truvio API<br/>small backend]
+  U -->|sign in, buy credits| API[Email Chekkr API<br/>small backend]
   API --> DB[(Database<br/>users, credits, usage)]
   API --> RP[Razorpay<br/>payments]
   RP -->|payment webhook| API
@@ -342,7 +343,7 @@ Optional later: SMTP mailbox checks, if the hosting cost makes sense.
 
 ## For reference: how MailSure differs
 
-| | MailSure | Truvio |
+| | MailSure | Email Chekkr |
 |---|---|---|
 | Where checks run | Its own server (Node's built-in `dns` module) | Website: visitor's browser. API: our server (Node's built-in `dns` module) |
 | Third-party verification API | None | None |
