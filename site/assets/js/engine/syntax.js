@@ -1,4 +1,4 @@
-// Truvio — email syntax check.
+// Email Chekkr — email syntax check.
 // Practical RFC 5321/5322 rules used by real mail systems (not the full, rarely-used RFC grammar).
 
 const LOCAL_ALLOWED = /^[A-Za-z0-9!#$%&'*+/=?^_`{|}~.-]+$/;

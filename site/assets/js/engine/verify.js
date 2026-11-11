@@ -1,4 +1,4 @@
-// Truvio — runs every check on an email and decides the final status.
+// Email Chekkr — runs every check on an email and decides the final status.
 //
 // Status meanings (shown to users):
 //   valid    — well-formed, the domain receives email, no risk signals
@@ -6,7 +6,7 @@
 //   invalid  — badly formed, or the domain doesn't exist / can't receive email
 //   unknown  — the domain lookup didn't answer in time; try again later
 //
-// Truvio does NOT log in to mail servers, so "valid" means the address and its domain look
+// Email Chekkr does NOT log in to mail servers, so "valid" means the address and its domain look
 // deliverable, not that the exact mailbox was confirmed.
 
 import { checkSyntax } from './syntax.js';

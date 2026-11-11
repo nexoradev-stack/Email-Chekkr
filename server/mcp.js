@@ -1,17 +1,17 @@
-// Truvio — MCP (Model Context Protocol) server, so AI tools like Claude and Cursor can verify emails.
+// Email Chekkr — MCP (Model Context Protocol) server, so AI tools like Claude and Cursor can verify emails.
 // Speaks JSON-RPC 2.0. Used two ways:
 //   - over HTTP at POST /mcp (remote; needs an API key)  — see app.js
 //   - over stdin/stdout for local AI apps                — see stdio.js
 
-export const SERVER_INFO = { name: 'truvio', title: 'Truvio — Email verification', version: '0.2.0' };
+export const SERVER_INFO = { name: 'email-chekkr', title: 'Email Chekkr — Email verification', version: '0.3.0' };
 const SUPPORTED_VERSIONS = ['2025-06-18', '2025-03-26', '2024-11-05'];
 
 const INSTRUCTIONS =
-  'Truvio checks email addresses before sending: format, domain, mail server (MX), temporary/disposable inboxes, ' +
+  'Email Chekkr checks email addresses before sending: format, domain, mail server (MX), temporary/disposable inboxes, ' +
   'team addresses like info@, and typos. Status is valid, risky, invalid or unknown with a 0–100 score. ' +
   'It does not log in to mail servers, so "valid" means the address and domain look deliverable, not that the mailbox was confirmed.';
 
-/** The tools Truvio offers to AI apps. */
+/** The tools Email Chekkr offers to AI apps. */
 export function toolDefinitions(batchMax) {
   return [
     {

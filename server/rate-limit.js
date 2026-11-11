@@ -1,5 +1,5 @@
-// Truvio API — simple in-memory rate limiter (fixed window).
-// Fine for a single server. When Truvio runs on several servers (Phase 2), move the counters to a shared store.
+// Email Chekkr API — simple in-memory rate limiter (fixed window).
+// Fine for a single server. When Email Chekkr runs on several servers (Phase 2), move the counters to a shared store.
 
 /**
  * @param {{ windowMs: number, now?: () => number }} options

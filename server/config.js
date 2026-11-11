@@ -1,4 +1,4 @@
-// Truvio API — settings, read from environment variables.
+// Email Chekkr API — settings, read from environment variables.
 // Every setting has a safe default, so `npm start` works with no setup.
 
 function int(value, fallback, { min = 0, max = Number.MAX_SAFE_INTEGER } = {}) {
@@ -20,10 +20,24 @@ function list(value) {
 }
 
 /**
+ * Settings can be named EMAIL_CHEKKR_* (preferred) or TRUVIO_* (the original names, still
+ * read so existing deployments keep working). When both are set, EMAIL_CHEKKR_* wins.
+ * @param {Record<string, string|undefined>} env
+ */
+export function withAliases(env) {
+  const out = { ...env };
+  for (const [key, value] of Object.entries(env)) {
+    if (key.startsWith('EMAIL_CHEKKR_') && value !== undefined) out[`TRUVIO_${key.slice(13)}`] = value;
+  }
+  return out;
+}
+
+/**
  * Builds the configuration.
  * @param {Record<string, string|undefined>} env  usually process.env
  */
-export function loadConfig(env = process.env) {
+export function loadConfig(rawEnv = process.env) {
+  const env = withAliases(rawEnv);
   return {
     host: env.TRUVIO_HOST || '0.0.0.0',
     // Render, Railway, Fly and Cloud Run inject PORT

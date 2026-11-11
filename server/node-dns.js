@@ -1,4 +1,4 @@
-// Truvio API — domain lookups with Node's built-in DNS module (no third-party service).
+// Email Chekkr API — domain lookups with Node's built-in DNS module (no third-party service).
 // Returns the same { status, records } shape as the browser's DNS-over-HTTPS resolver,
 // so the shared engine (site/assets/js/engine) works unchanged on the server.
 

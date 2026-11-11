@@ -1,4 +1,4 @@
-// Truvio API — the checks the API and the MCP tools offer.
+// Email Chekkr API — the checks the API and the MCP tools offer.
 // Wraps the shared engine (site/assets/js/engine), which is the same code the website runs.
 
 import { checkSyntax } from '../site/assets/js/engine/syntax.js';

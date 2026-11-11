@@ -1,5 +1,5 @@
 #!/usr/bin/env node
-// Truvio — MCP server over stdin/stdout, for AI apps on your own computer (Claude Desktop, Cursor, Claude Code).
+// Email Chekkr — MCP server over stdin/stdout, for AI apps on your own computer (Claude Desktop, Cursor, Claude Code).
 // Run: npm run mcp     (one JSON-RPC message per line; logs go to stderr)
 
 import { createInterface } from 'node:readline';
@@ -40,4 +40,4 @@ rl.on('close', async () => {
   process.exit(0);
 });
 
-jsonLog({ level: 'info', msg: 'Truvio MCP server ready on stdio' });
+jsonLog({ level: 'info', msg: 'Email Chekkr MCP server ready on stdio' });

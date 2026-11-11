@@ -1,4 +1,4 @@
-// Truvio — domain and mail-server (MX) lookups.
+// Email Chekkr — domain and mail-server (MX) lookups.
 // In the browser we use DNS-over-HTTPS (Google Public DNS, with Cloudflare as a fallback).
 // Only the domain is sent (e.g. "example.com"), never the full email address.
 

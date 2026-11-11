@@ -1,0 +1,168 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Bulk check · Email Chekkr</title>
+  <meta name="description" content="Drop a CSV and get every email checked in your browser. Up to 10,000 rows, with a result, score and reason for each.">
+  <meta property="og:title" content="Bulk check · Email Chekkr">
+  <meta property="og:description" content="Drop a CSV and get every email checked in your browser. Up to 10,000 rows, with a result, score and reason for each.">
+  <meta property="og:type" content="website">
+  <meta name="theme-color" content="#040A18">
+  <script>try{var t=localStorage.getItem('email-chekkr-theme');if(t==='light'||t==='dark')document.documentElement.setAttribute('data-theme',t)}catch(e){}</script>
+  <link rel="icon" href="assets/img/favicon.svg" type="image/svg+xml">
+  <link rel="apple-touch-icon" href="assets/img/icon-512.png">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500&family=IBM+Plex+Mono:wght@400;500&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="assets/css/styles.css">
+  <script type="module" src="assets/js/app.js"></script>
+</head>
+<body>
+  <a class="skip" href="#main">Skip to content</a>
+  <header class="site-header">
+    <div class="wrap">
+      <a class="brand" href="./" aria-label="Email Chekkr home"><svg viewBox="0 0 64 64" aria-hidden="true"><defs><radialGradient id="lg-h" cx="0.36" cy="0.3" r="0.75"><stop offset="0" stop-color="#9AA8FF"/><stop offset="0.45" stop-color="#3952FF"/><stop offset="1" stop-color="#18237E"/></radialGradient></defs><rect width="64" height="64" rx="16" fill="#040A18"/><circle cx="32" cy="32" r="19" fill="url(#lg-h)"/><ellipse cx="26" cy="23" rx="6" ry="3.5" fill="#FFFDF9" opacity="0.28" transform="rotate(-25 26 23)"/><path d="M24.5 32.5l5.5 5.5 10-11" fill="none" stroke="#FFFDF9" stroke-width="4.4" stroke-linecap="round" stroke-linejoin="round"/></svg><span><span class="w1">Email </span><span class="w2">Chekkr</span></span></a>
+      <nav class="nav" id="site-nav" aria-label="Main">
+        <a href="./">Check an email</a>
+        <a href="bulk.html" aria-current="page">Bulk check</a>
+        <a href="pricing.html">Pricing</a>
+        <a href="api.html">API</a>
+        <a href="contact.html">Contact</a>
+      </nav>
+      <div class="header-actions">
+        <button class="icon-btn theme-toggle" type="button" aria-label="Switch theme"><svg class="sun" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><circle cx="12" cy="12" r="4.2"/><path d="M12 2.5v2.2M12 19.3v2.2M4.6 4.6l1.6 1.6M17.8 17.8l1.6 1.6M2.5 12h2.2M19.3 12h2.2M4.6 19.4l1.6-1.6M17.8 6.2l1.6-1.6"/></svg><svg class="moon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round"><path d="M20 14.5A8.5 8.5 0 0 1 9.5 4a8.5 8.5 0 1 0 10.5 10.5z"/></svg></button>
+        <a class="btn btn-primary btn-sm" href="pricing.html#waitlist">Join the waitlist</a>
+        <button class="icon-btn menu-toggle" type="button" aria-label="Menu" aria-expanded="false" aria-controls="site-nav"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><path d="M4 7h16M4 12h16M4 17h16"/></svg></button>
+      </div>
+    </div>
+  </header>
+
+  <main id="main">
+    <div class="page">
+      <div class="wrap">
+        <div class="page-head">
+          <span class="eyebrow">Bulk check</span>
+          <h1>Check a whole list</h1>
+          <p>Drop a CSV and get it back with a result for every row. Up to 10,000 rows, checked in your browser. Free during early access.</p>
+        </div>
+
+        <div class="bulk-grid" id="bulk">
+          <div>
+            <label class="drop" id="drop">
+              <input id="csv-input" type="file" accept=".csv,text/csv">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M12 15V4M7.5 8.5L12 4l4.5 4.5"/><path d="M4 15v3a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-3"/></svg>
+              <strong>Drop a CSV here</strong>
+              <span class="muted">or click to choose a file</span>
+            </label>
+            <p class="bulk-notes">One column should hold the emails, ideally with a header like "Email". Max 10,000 rows and 5 MB. Need a file to try? <a href="assets/data/email-chekkr-sample.csv" download>Download a sample CSV</a>.</p>
+            <p class="notice error" id="bulk-error" role="alert" hidden></p>
+          </div>
+
+          <div class="panel" id="bulk-panel" aria-live="polite">
+            <div class="empty" id="bulk-empty">
+              <div><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><rect x="3.5" y="4.5" width="17" height="15" rx="2"/><path d="M3.5 9.5h17M3.5 14.5h17M9.5 4.5v15"/></svg><p>Your results will appear here.</p></div>
+            </div>
+            <div id="bulk-progress" hidden>
+              <h3 id="bulk-progress-text">Checking…</h3>
+              <div class="progress"><span id="bulk-progress-bar"></span></div>
+              <button class="btn btn-secondary btn-sm" id="bulk-cancel" type="button">Stop</button>
+            </div>
+            <div id="bulk-result" hidden>
+              <h3 id="bulk-file-name"></h3>
+              <div class="summary-bar" id="summary-bar" aria-hidden="true"></div>
+              <ul class="counts" id="counts"></ul>
+              <div class="bulk-actions">
+                <button class="btn btn-primary btn-sm" id="download-all" type="button">Download all results</button>
+                <button class="btn btn-secondary btn-sm" id="download-valid" type="button">Download valid only</button>
+              </div>
+              <div class="table-wrap">
+                <table>
+                  <caption id="table-caption"></caption>
+                  <thead><tr><th scope="col">Email</th><th scope="col">Result</th><th scope="col">Why</th></tr></thead>
+                  <tbody id="preview-rows"></tbody>
+                </table>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <section class="section" aria-labelledby="file-title" style="padding-top:96px">
+          <div class="split">
+            <div>
+              <span class="eyebrow">Your file back</span>
+              <h2 id="file-title" style="margin-top:14px">Every column kept, four added</h2>
+              <ul class="ticks">
+                <li><code>chekkr_status</code>: valid, risky, invalid or unknown</li>
+                <li><code>chekkr_score</code>: 0 to 100</li>
+                <li><code>chekkr_reason</code>: why, in plain words</li>
+                <li><code>chekkr_suggestion</code>: the fixed address when there's a likely typo</li>
+              </ul>
+            </div>
+            <div>
+              <span class="eyebrow">Tips</span>
+              <h2 style="margin-top:14px">Before you upload</h2>
+              <ul class="ticks">
+                <li>Export from your CRM or spreadsheet as CSV (UTF-8).</li>
+                <li>Larger lists: split them into files of 10,000 rows.</li>
+                <li>"Unknown" means the domain didn't answer in time. Run those again later.</li>
+              </ul>
+            </div>
+          </div>
+        </section>
+
+        <section class="section" aria-labelledby="results-title" style="padding-top:96px">
+          <div class="section-head">
+            <h2 id="results-title">What each result means</h2>
+          </div>
+        <ul class="legend">
+          <li style="--c: var(--valid)"><h3>Valid</h3><p>Written correctly, and the domain has a working mail server. No warning signs. Safe to send.</p></li>
+          <li style="--c: var(--risky)"><h3>Risky</h3><p>The domain takes email, but something is off: a temporary inbox, a team address like info@, a likely typo, or no mail server record.</p></li>
+          <li style="--c: var(--invalid)"><h3>Invalid</h3><p>Badly written, or the domain doesn't exist or doesn't accept email. Sending will bounce.</p></li>
+          <li style="--c: var(--unknown)"><h3>Unknown</h3><p>The domain didn't answer in time. Check it again later before removing it.</p></li>
+        </ul>
+        </section>
+      </div>
+    </div>
+  </main>
+
+  <footer class="site-footer">
+    <div class="wrap">
+      <div class="footer-grid">
+        <div>
+          <a class="brand" href="./" aria-label="Email Chekkr home"><svg viewBox="0 0 64 64" aria-hidden="true"><defs><radialGradient id="lg-f" cx="0.36" cy="0.3" r="0.75"><stop offset="0" stop-color="#9AA8FF"/><stop offset="0.45" stop-color="#3952FF"/><stop offset="1" stop-color="#18237E"/></radialGradient></defs><rect width="64" height="64" rx="16" fill="#040A18"/><circle cx="32" cy="32" r="19" fill="url(#lg-f)"/><ellipse cx="26" cy="23" rx="6" ry="3.5" fill="#FFFDF9" opacity="0.28" transform="rotate(-25 26 23)"/><path d="M24.5 32.5l5.5 5.5 10-11" fill="none" stroke="#FFFDF9" stroke-width="4.4" stroke-linecap="round" stroke-linejoin="round"/></svg><span><span class="w1">Email </span><span class="w2">Chekkr</span></span></a>
+          <p>Check every email before you send. Fewer bounces, a cleaner sender reputation, and your list never leaves your browser.</p>
+        </div>
+        <div>
+          <h4>Product</h4>
+          <ul>
+            <li><a href="./">Check an email</a></li>
+            <li><a href="bulk.html">Bulk check</a></li>
+            <li><a href="pricing.html">Pricing</a></li>
+            <li><a href="api.html">API and AI tools</a></li>
+          </ul>
+        </div>
+        <div>
+          <h4>Company</h4>
+          <ul>
+            <li><a href="contact.html">Contact</a></li>
+            <li><a href="pricing.html#waitlist">Waitlist</a></li>
+            <li><a href="https://github.com/nexoradev-stack/Truvio-Email-verification">GitHub</a></li>
+          </ul>
+        </div>
+        <div>
+          <h4>Legal</h4>
+          <ul>
+            <li><a href="privacy.html">Privacy</a></li>
+            <li><a href="terms.html">Terms</a></li>
+          </ul>
+        </div>
+      </div>
+      <div class="footer-base">
+        <span>© <span data-year>2026</span> Email Chekkr</span>
+        <span>No cookies. No tracking. Checks run in your browser.</span>
+      </div>
+    </div>
+  </footer>
+</body>
+</html>

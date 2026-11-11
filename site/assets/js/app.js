@@ -1,14 +1,15 @@
-// Truvio — page behaviour: theme switch, menu, 3D scene, single check, bulk CSV check.
+// Email Chekkr — page behaviour: theme switch, menu, single check, bulk CSV check, forms.
 
 import { createVerifier, parseDomainList, runPool, STATUS } from './engine/verify.js';
 import { createDohResolver } from './engine/dns.js';
 import { checkSyntax } from './engine/syntax.js';
 import { parseCsv, findEmailColumn, toCsv } from './engine/csv.js';
+import { FORMS } from './config.js';
 
 const MAX_ROWS = 10000;
 const MAX_FILE_BYTES = 5 * 1024 * 1024;
 const PREVIEW_ROWS = 50;
-const THEME_KEY = 'truvio-theme';
+const THEME_KEY = 'email-chekkr-theme';
 
 const $ = (id) => document.getElementById(id);
 
@@ -36,11 +37,11 @@ function initTheme() {
     document.documentElement.setAttribute('data-theme', next);
     try { localStorage.setItem(THEME_KEY, next); } catch { /* storage blocked: theme still switches */ }
     label();
-    document.dispatchEvent(new CustomEvent('truvio:theme', { detail: next }));
+    document.dispatchEvent(new CustomEvent('chekkr:theme', { detail: next }));
   });
   window.matchMedia('(prefers-color-scheme: dark)').addEventListener?.('change', () => {
     label();
-    document.dispatchEvent(new CustomEvent('truvio:theme', { detail: currentTheme() }));
+    document.dispatchEvent(new CustomEvent('chekkr:theme', { detail: currentTheme() }));
   });
 }
 
@@ -60,16 +61,6 @@ function initMenu() {
       toggle.setAttribute('aria-expanded', 'false');
     }
   });
-}
-
-// ---------- 3D scene (loaded only where there's a scene on the page) ----------
-
-function initScene() {
-  const container = $('scene');
-  if (!container) return;
-  import('./scene.js')
-    .then(({ startScene }) => startScene(container))
-    .catch(() => { container.hidden = true; });
 }
 
 // ---------- Shared verifier ----------
@@ -241,7 +232,7 @@ function setBulkView(view) {
 
 function outputRows(onlyValid) {
   const header = bulk.hasHeader ? bulk.rows[0] : bulk.rows[0].map((_, i) => (i === bulk.column ? 'email' : `column_${i + 1}`));
-  const out = [[...header, 'truvio_status', 'truvio_score', 'truvio_reason', 'truvio_suggestion']];
+  const out = [[...header, 'chekkr_status', 'chekkr_score', 'chekkr_reason', 'chekkr_suggestion']];
   const data = bulk.hasHeader ? bulk.rows.slice(1) : bulk.rows;
   data.forEach((row, i) => {
     const r = bulk.results[i];
@@ -258,7 +249,7 @@ function download(rows, suffix) {
   const a = document.createElement('a');
   const base = bulk.fileName.replace(/\.csv$/i, '') || 'list';
   a.href = url;
-  a.download = `${base}-truvio-${suffix}.csv`;
+  a.download = `${base}-chekkr-${suffix}.csv`;
   document.body.append(a);
   a.click();
   a.remove();
@@ -372,11 +363,101 @@ function initBulk() {
   $('download-valid').addEventListener('click', () => download(outputRows(true), 'valid'));
 }
 
+// ---------- Contact and waitlist forms ----------
+// Sends through Web3Forms when an access key is set in config.js. Until then,
+// falls back to opening the visitor's mail app (if a fallback address is set),
+// or explains that the form isn't connected yet.
+
+const EMAIL_RE = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+
+function formStatus(form, message, kind) {
+  const el = form.querySelector('.form-status');
+  el.textContent = message;
+  el.className = `form-status ${kind || ''}`;
+}
+
+function formFields(form) {
+  const data = {};
+  new FormData(form).forEach((value, key) => { if (key !== 'botcheck') data[key] = String(value).trim(); });
+  return data;
+}
+
+async function sendForm(kind, data) {
+  const subject = kind === 'waitlist'
+    ? `Email Chekkr waitlist: ${data.plan || 'plan not chosen'}`
+    : `Email Chekkr contact: ${data.topic || 'message'}`;
+  if (FORMS.web3formsKey) {
+    const res = await fetch('https://api.web3forms.com/submit', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json', Accept: 'application/json' },
+      body: JSON.stringify({ access_key: FORMS.web3formsKey, subject, from_name: 'Email Chekkr website', form: kind, ...data })
+    });
+    const json = await res.json().catch(() => ({}));
+    if (!res.ok || json.success === false) throw new Error(json.message || 'send failed');
+    return 'sent';
+  }
+  if (FORMS.fallbackEmail) {
+    const body = Object.entries(data).map(([k, v]) => `${k}: ${v}`).join('\n');
+    window.location.href = `mailto:${FORMS.fallbackEmail}?subject=${encodeURIComponent(subject)}&body=${encodeURIComponent(body)}`;
+    return 'mail-app';
+  }
+  return 'not-connected';
+}
+
+function initForms() {
+  document.querySelectorAll('form[data-form]').forEach((form) => {
+    const kind = form.dataset.form;
+    const button = form.querySelector('button[type="submit"]');
+    form.addEventListener('submit', async (e) => {
+      e.preventDefault();
+      if (form.querySelector('[name="botcheck"]')?.checked) return;
+      const data = formFields(form);
+      const missing = [...form.querySelectorAll('[required]')].find((el) => !el.value.trim());
+      if (missing) { formStatus(form, 'Please fill in every field.', 'err'); missing.focus(); return; }
+      if (!EMAIL_RE.test(data.email || '')) { formStatus(form, 'Please enter a valid email address.', 'err'); form.querySelector('[name="email"]').focus(); return; }
+      button.disabled = true;
+      formStatus(form, 'Sending…');
+      try {
+        const outcome = await sendForm(kind, data);
+        if (outcome === 'sent') {
+          form.reset();
+          formStatus(form, kind === 'waitlist' ? "You're on the list. We'll email you when paid plans open." : "Thanks — your message is on its way. We'll reply by email.", 'ok');
+        } else if (outcome === 'mail-app') {
+          formStatus(form, 'Your mail app should open with the message ready to send.', 'ok');
+        } else {
+          formStatus(form, "This form isn't connected yet. Please try again soon.", 'err');
+        }
+      } catch {
+        formStatus(form, "Couldn't send right now. Check your connection and try again.", 'err');
+      } finally {
+        button.disabled = false;
+      }
+    });
+  });
+
+  // contact.html?topic=api preselects the topic
+  const topic = new URLSearchParams(window.location.search).get('topic');
+  const select = $('c-topic');
+  if (topic && select && [...select.options].some((o) => o.value === topic)) select.value = topic;
+}
+
+function initPlanButtons() {
+  const select = $('wl-plan');
+  document.querySelectorAll('[data-plan]').forEach((button) => {
+    button.addEventListener('click', () => {
+      if (select) select.value = button.dataset.plan;
+      $('waitlist')?.scrollIntoView({ behavior: window.matchMedia('(prefers-reduced-motion: reduce)').matches ? 'auto' : 'smooth' });
+      $('wl-email')?.focus({ preventScroll: true });
+    });
+  });
+}
+
 // ---------- Start ----------
 
 document.querySelectorAll('[data-year]').forEach((el) => { el.textContent = String(new Date().getFullYear()); });
 initTheme();
 initMenu();
-initScene();
 initSingle();
 initBulk();
+initForms();
+initPlanButtons();

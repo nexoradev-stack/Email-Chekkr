@@ -1,4 +1,4 @@
-// Tests for the Truvio API and MCP server. DNS is faked, so no network is needed.
+// Tests for the Email Chekkr API and MCP server. DNS is faked, so no network is needed.
 
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
@@ -107,7 +107,7 @@ test('API: health, version, home and 404', async () => {
   const api = await startApi();
   try {
     assert.deepEqual(await (await api.get('/health')).json(), { status: 'ok' });
-    assert.equal((await (await api.get('/version')).json()).name, 'truvio');
+    assert.equal((await (await api.get('/version')).json()).name, 'email-chekkr');
     assert.ok((await (await api.get('/')).json()).endpoints.length >= 4);
     const missing = await api.get('/nope');
     assert.equal(missing.status, 404);
@@ -232,7 +232,7 @@ test('MCP handler: initialize, list tools, call tools, errors', async () => {
 
   const init = await handle({ jsonrpc: '2.0', id: 1, method: 'initialize', params: { protocolVersion: '2025-03-26' } });
   assert.equal(init.result.protocolVersion, '2025-03-26');
-  assert.equal(init.result.serverInfo.name, 'truvio');
+  assert.equal(init.result.serverInfo.name, 'email-chekkr');
   assert.equal(await handle({ jsonrpc: '2.0', method: 'notifications/initialized' }), null);
 
   const list = await handle({ jsonrpc: '2.0', id: 2, method: 'tools/list' });
@@ -279,4 +279,10 @@ test('API: MCP over HTTP needs a key', async () => {
   } finally {
     await noKeys.close();
   }
+});
+
+test('EMAIL_CHEKKR_* settings work, and win over the older TRUVIO_* names', () => {
+  const c = loadConfig({ EMAIL_CHEKKR_API_KEYS: 'new-key', TRUVIO_API_KEYS: 'old-key', TRUVIO_PUBLIC_RATE_LIMIT: '7' });
+  assert.deepEqual([...c.apiKeys], ['new-key']);
+  assert.equal(c.limits.publicPerWindow, 7);
 });

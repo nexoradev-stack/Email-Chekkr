@@ -1,4 +1,4 @@
-// Truvio — built-in word lists.
+// Email Chekkr — built-in word lists.
 
 /** Addresses that usually reach a team or a system, not a person. */
 export const ROLE_ACCOUNTS = new Set([
