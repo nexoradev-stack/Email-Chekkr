@@ -2,7 +2,7 @@
 FROM node:22-alpine
 
 ENV NODE_ENV=production \
-    TRUVIO_HOST=0.0.0.0 \
+    EMAIL_CHEKKR_HOST=0.0.0.0 \
     PORT=8787
 
 WORKDIR /app

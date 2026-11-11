@@ -2,7 +2,7 @@
   "mcpServers": {
     "email-chekkr": {
       "command": "node",
-      "args": ["/full/path/to/Truvio-Email-verification/server/stdio.js"]
+      "args": ["/full/path/to/Email-Chekkr/server/stdio.js"]
     }
   }
 }
