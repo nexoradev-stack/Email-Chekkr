@@ -600,6 +600,11 @@ pre.code {
 .prose h2 { margin-top: 24px; font-size: 24px; }
 .prose p, .prose li { color: var(--muted); }
 .prose ul { margin: 0; padding-left: 22px; display: grid; gap: 8px; }
+.prose strong { color: var(--text); font-weight: 500; }
+.prose table { width: 100%; border-collapse: collapse; font-size: 15px; }
+.prose th, .prose td { text-align: left; padding: 10px 12px; border-bottom: 1px solid var(--line-soft); }
+.prose th { font-family: var(--mono); font-size: 12px; font-weight: 400; letter-spacing: .12em; text-transform: uppercase; color: var(--faint); }
+.prose td { color: var(--muted); }
 .updated { font-family: var(--mono); font-size: 13px; color: var(--faint); }
 
 /* ---------- Footer ---------- */

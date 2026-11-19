@@ -8,6 +8,17 @@
   <meta property="og:title" content="API · Email Chekkr">
   <meta property="og:description" content="Email Chekkr REST API and MCP server: check one email, a batch, or a domain from your app or AI tool.">
   <meta property="og:type" content="website">
+  <meta property="og:url" content="https://nexoradev-stack.github.io/Email-Chekkr/api.html">
+  <meta property="og:site_name" content="Email Chekkr">
+  <meta property="og:image" content="https://nexoradev-stack.github.io/Email-Chekkr/assets/img/og-image.jpg">
+  <meta property="og:image:width" content="1200">
+  <meta property="og:image:height" content="630">
+  <meta property="og:image:alt" content="Email Chekkr — Check every email before you send">
+  <meta name="twitter:card" content="summary_large_image">
+  <meta name="twitter:title" content="API · Email Chekkr">
+  <meta name="twitter:description" content="Email Chekkr REST API and MCP server: check one email, a batch, or a domain from your app or AI tool.">
+  <meta name="twitter:image" content="https://nexoradev-stack.github.io/Email-Chekkr/assets/img/og-image.jpg">
+  <link rel="canonical" href="https://nexoradev-stack.github.io/Email-Chekkr/api.html">
   <meta name="theme-color" content="#040A18">
   <script>try{var t=localStorage.getItem('email-chekkr-theme');if(t==='light'||t==='dark')document.documentElement.setAttribute('data-theme',t)}catch(e){}</script>
   <link rel="icon" href="assets/img/favicon.svg" type="image/svg+xml">
@@ -77,6 +88,8 @@
   "email": "sample.user@gmial.com",
   "status": "risky",
   "score": 1,
+  "confidence": "high",
+  "provider_type": "disposable",
   "reason": "Possible typo — did you mean sample.user@gmail.com?",
   "suggestion": "sample.user@gmail.com",
   "checks": {
@@ -114,13 +127,13 @@
                 </tbody>
               </table>
             </div>
-            <p>Results are <code>valid</code>, <code>risky</code>, <code>invalid</code> or <code>unknown</code>, with a score from 0 to 100. See <a href="./#results-title">what each result means</a>.</p>
+            <p>Results are <code>valid</code>, <code>risky</code>, <code>invalid</code> or <code>unknown</code>, with a score from 0 to 100, a <code>confidence</code> (<code>high</code>, <code>medium</code> or <code>low</code>) and a <code>provider_type</code> (<code>disposable</code>, <code>free</code> or <code>custom</code>). See <a href="./#results-title">what each result means</a>, or the <a href="https://github.com/nexoradev-stack/Email-Chekkr/blob/main/docs/statuses.md">full guide to every result and reason</a>.</p>
 
             <h2 id="errors">Errors</h2>
             <p>Errors come back as <code>{"error": {"code": "...", "message": "..."}}</code>. Common codes: <code>invalid_input</code> (400), <code>batch_too_large</code> (400), <code>api_key_required</code> or <code>invalid_api_key</code> (401), <code>rate_limited</code> (429).</p>
 
             <h2 id="mcp">Use Email Chekkr in AI tools (MCP)</h2>
-            <p>Claude, Cursor and other AI tools can check emails with Email Chekkr. They get three tools: <code>verify_email</code>, <code>verify_emails_batch</code> and <code>check_domain</code>.</p>
+            <p>Claude, Cursor and other AI tools can check emails with Email Chekkr. They get five tools: <code>verify_email</code>, <code>verify_emails_batch</code>, <code>check_domain</code>, <code>verify_csv</code> (a whole CSV file, up to 10,000 rows) and <code>get_statistics</code>. Step-by-step setup for Claude, Claude Code, Cursor and Gemini CLI is in the <a href="https://github.com/nexoradev-stack/Email-Chekkr/blob/main/docs/mcp-setup.md">MCP setup guide</a>.</p>
             <p>To connect over the internet, add this server address in your AI tool and send your API key as a Bearer token:</p>
             <pre class="code"><code>https://email-chekkr-api.onrender.com/mcp</code></pre>
             <p>To run it on your own computer instead, download the code and add this to your AI tool's MCP settings:</p>
@@ -163,6 +176,7 @@
         <div>
           <h4>Company</h4>
           <ul>
+            <li><a href="about.html">About</a></li>
             <li><a href="contact.html">Contact</a></li>
             <li><a href="pricing.html#waitlist">Waitlist</a></li>
             <li><a href="https://github.com/nexoradev-stack/Email-Chekkr">GitHub</a></li>

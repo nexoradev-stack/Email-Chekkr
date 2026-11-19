@@ -68,10 +68,15 @@ function initMenu() {
 let verifierPromise;
 function getVerifier() {
   if (!verifierPromise) {
-    verifierPromise = fetch('assets/data/disposable-domains.txt')
+    const load = (path) => fetch(path)
       .then((res) => (res.ok ? res.text() : ''))
-      .catch(() => '')
-      .then((text) => createVerifier({ resolve: createDohResolver(), disposable: parseDomainList(text) }));
+      .catch(() => '');
+    verifierPromise = Promise.all([load('assets/data/disposable-domains.txt'), load('assets/data/free-providers.txt')])
+      .then(([disposable, free]) => createVerifier({
+        resolve: createDohResolver(),
+        disposable: parseDomainList(disposable),
+        freeProviders: parseDomainList(free)
+      }));
   }
   return verifierPromise;
 }
@@ -133,12 +138,14 @@ function buildChecklist(result) {
   return items;
 }
 
+const CONFIDENCE_LABEL = { high: 'High confidence', medium: 'Medium confidence', low: 'Low confidence' };
+
 function renderVerdict(result) {
   const v = $('verdict');
   const color = `var(--${result.status})`;
   v.className = `verdict ${result.status}`;
   v.innerHTML = `<span class="status">${STATUS_LABEL[result.status]}</span>
-    <span class="score">Score ${result.score} / 100</span>
+    <span class="score">Score ${result.score} / 100${result.confidence ? ` · ${CONFIDENCE_LABEL[result.confidence]}` : ''}</span>
     <div class="meter" aria-hidden="true"><span style="background:${color}"></span></div>`;
   v.hidden = false;
   requestAnimationFrame(() => { v.querySelector('.meter span').style.width = `${result.score}%`; });
@@ -232,13 +239,13 @@ function setBulkView(view) {
 
 function outputRows(onlyValid) {
   const header = bulk.hasHeader ? bulk.rows[0] : bulk.rows[0].map((_, i) => (i === bulk.column ? 'email' : `column_${i + 1}`));
-  const out = [[...header, 'chekkr_status', 'chekkr_score', 'chekkr_reason', 'chekkr_suggestion']];
+  const out = [[...header, 'chekkr_status', 'chekkr_score', 'chekkr_reason', 'chekkr_suggestion', 'chekkr_confidence', 'chekkr_provider']];
   const data = bulk.hasHeader ? bulk.rows.slice(1) : bulk.rows;
   data.forEach((row, i) => {
     const r = bulk.results[i];
     if (!r) return;
     if (onlyValid && r.status !== STATUS.VALID) return;
-    out.push([...row, r.status, r.score, r.reason, r.suggestion || '']);
+    out.push([...row, r.status, r.score, r.reason, r.suggestion || '', r.confidence || '', r.provider_type || '']);
   });
   return out;
 }
