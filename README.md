@@ -182,6 +182,7 @@ npm run serve            # website at http://localhost:8080
 npm start                # API at http://localhost:8787
 npm run mcp              # MCP server over stdio
 npm run update:disposable  # refresh the disposable domain list (runs daily on GitLab, see docs)
+npm run build:og         # build the link-preview image (needs rsvg-convert; done on every deploy)
 ```
 
 ### 🌐 Publish the website
@@ -218,7 +219,7 @@ site/                       the website (published to GitHub Pages)
     ├── data/disposable-domains.txt   temporary inbox services (refreshed daily)
     ├── data/free-providers.txt       free mailbox providers (Gmail, Outlook …)
     ├── data/email-chekkr-sample.csv
-    └── img/                logo.svg, favicon.svg, icon-512.png, og-image.jpg (link previews)
+    └── img/                logo.svg, favicon.svg, icon-512.png, og-image.png (link preview, built on deploy)
 server/                     the API and MCP server (Node built-ins only)
 ├── index.js                starts the HTTP server
 ├── app.js                  routes, API keys, CORS, limits

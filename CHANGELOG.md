@@ -10,7 +10,7 @@ All notable changes to Email Chekkr. Newest first. Dates are in YYYY-MM-DD.
 - **Free-provider list** moved to its own data file, `site/assets/data/free-providers.txt`, and grown from 36 to 131 domains (Microsoft, Yahoo, GMX, Zoho and Indian, European, Asian and American ISPs).
 - **Daily disposable list update** as a scheduled GitLab pipeline that opens a merge request (`.gitlab-ci.yml`). The update script now skips free providers and refuses suspiciously small downloads.
 - **About page** with credits, and an About link in every footer.
-- **SEO and sharing:** `robots.txt`, `sitemap.xml`, canonical links, Open Graph and Twitter card tags, and a 1200×630 social preview image.
+- **SEO and sharing:** `robots.txt`, `sitemap.xml`, canonical links, Open Graph and Twitter card tags, and a 1200×630 social preview image, built from `docs/assets/og-image.svg` on every deploy.
 - **Docs folder:** results explained, limitations, troubleshooting, MCP setup for Claude, Claude Code, Cursor and Gemini CLI, and disposable list updates.
 - `CONTRIBUTING.md`, `SECURITY.md`, this changelog, and issue / pull request / merge request templates.
 - New settings: `EMAIL_CHEKKR_CSV_MAX_ROWS`, `EMAIL_CHEKKR_FREE_PROVIDERS_PATH`.

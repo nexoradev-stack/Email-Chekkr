@@ -13,7 +13,8 @@
     "mcp": "node server/stdio.js",
     "serve": "python3 -m http.server 8080 --directory site",
     "update:disposable": "node scripts/update-disposable.js",
-    "check:secrets": "node scripts/check-secrets.js"
+    "check:secrets": "node scripts/check-secrets.js",
+    "build:og": "rsvg-convert -w 1200 -h 630 docs/assets/og-image.svg -o site/assets/img/og-image.png"
   },
   "bin": {
     "email-chekkr-mcp": "./server/stdio.js"

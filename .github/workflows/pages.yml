@@ -6,7 +6,7 @@ name: Deploy site
 on:
   push:
     branches: [ "main" ]
-    paths: [ "site/**", ".github/workflows/pages.yml" ]
+    paths: [ "site/**", "docs/assets/og-image.svg", ".github/workflows/pages.yml" ]
   workflow_dispatch:
 
 permissions:
@@ -26,6 +26,16 @@ jobs:
       url: ${{ steps.deployment.outputs.page_url }}
     steps:
     - uses: actions/checkout@v4
+    # The link-preview image (og:image) is built from docs/assets/og-image.svg, so no image file lives in Git.
+    # If this step fails, the site still deploys; link previews just show no picture.
+    - name: Build the link-preview image
+      continue-on-error: true
+      run: |
+        sudo apt-get update -qq
+        sudo apt-get install -y -qq librsvg2-bin
+        sudo apt-get install -y -qq fonts-inter || echo "Inter font not available; using the default font"
+        npm run build:og
+        ls -la site/assets/img/og-image.png
     - uses: actions/configure-pages@v5
     - uses: actions/upload-pages-artifact@v3
       with:
