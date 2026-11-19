@@ -4,7 +4,7 @@ import { createVerifier, parseDomainList, runPool, STATUS } from './engine/verif
 import { createDohResolver } from './engine/dns.js';
 import { checkSyntax } from './engine/syntax.js';
 import { parseCsv, findEmailColumn, toCsv } from './engine/csv.js';
-import { FORMS } from './config.js';
+import { FORMS, API } from './config.js';
 
 const MAX_ROWS = 10000;
 const MAX_FILE_BYTES = 5 * 1024 * 1024;
@@ -81,6 +81,44 @@ function getVerifier() {
   return verifierPromise;
 }
 
+// ---------- Mailbox check through the API (only when the API has it switched on) ----------
+
+let mailboxApiPromise;
+function fetchWithTimeout(url, ms) {
+  const controller = new AbortController();
+  const timer = setTimeout(() => controller.abort(), ms);
+  return fetch(url, { signal: controller.signal }).finally(() => clearTimeout(timer));
+}
+/** Resolves to true when the API is reachable and its mailbox check is on. Asked once per visit. */
+function mailboxApiAvailable() {
+  if (!API.apiBase) return Promise.resolve(false);
+  if (!mailboxApiPromise) {
+    mailboxApiPromise = fetchWithTimeout(`${API.apiBase}/health`, 4000)
+      .then((res) => (res.ok ? res.json() : {}))
+      .then((body) => body.mailbox_check === true)
+      .catch(() => false);
+  }
+  return mailboxApiPromise;
+}
+/** Asks the API for a full check including the mailbox. Returns null if anything goes wrong. */
+async function verifyWithMailbox(email) {
+  try {
+    const res = await fetchWithTimeout(`${API.apiBase}/v1/verify?email=${encodeURIComponent(email)}`, API.timeoutMs);
+    if (!res.ok) return null;
+    const result = await res.json();
+    return result && result.status && result.checks ? result : null;
+  } catch {
+    return null;
+  }
+}
+function showPrivacyNote(usesServer) {
+  const note = $('privacy-note');
+  if (!note) return;
+  note.textContent = usesServer
+    ? 'To confirm the mailbox, this check asks Email Chekkr\'s server, which never stores the address. CSV lists stay in your browser.'
+    : 'Only the part after the @ is looked up. The address stays in your browser.';
+}
+
 // ---------- Single check ----------
 
 function checkItem(state, title, detail) {
@@ -133,6 +171,15 @@ function buildChecklist(result) {
   const mxState = c.mx === 'mx' ? 'ok' : c.mx === 'a-fallback' ? 'warn' : c.mx === 'error' ? 'wait' : 'bad';
   items.push([mxState, 'Mail server', mxDetail(c.mx)]);
   items.push(c.disposable ? ['warn', 'Temporary inbox', 'Known disposable domain'] : ['ok', 'Temporary inbox', 'Not disposable']);
+  if (c.placeholder) items.push(['warn', 'Real person', 'Looks like a placeholder (test@, sample@)']);
+  const mailbox = {
+    exists: ['ok', 'Mailbox', 'Confirmed by the mail server'],
+    'not-found': ['bad', 'Mailbox', 'Does not exist'],
+    full: ['warn', 'Mailbox', 'Full right now'],
+    'catch-all': ['warn', 'Mailbox', 'Domain accepts any address'],
+    unknown: ['wait', 'Mailbox', 'Mail server gave no clear answer']
+  }[c.mailbox];
+  if (mailbox) items.push(mailbox);
   items.push(c.role ? ['warn', 'Person or team', 'Team address'] : ['ok', 'Person or team', 'Looks like a person']);
   if (result.suggestion) items.push(['warn', 'Typo', 'Domain looks mistyped']);
   return items;
@@ -184,13 +231,25 @@ async function runSingle(email) {
   ]);
 
   const verifier = await getVerifier();
-  const result = await verifier.verify(syntax.email);
+  let result = await verifier.verify(syntax.email);
+  // If the domain can take email and the API can check mailboxes, ask it about this exact mailbox
+  const domainOk = result.checks.mx === 'mx' || result.checks.mx === 'a-fallback';
+  if (domainOk && !result.checks.disposable && await mailboxApiAvailable()) {
+    showPrivacyNote(true);
+    renderChecklist([...buildChecklist(result), ['wait', 'Mailbox', 'Asking the mail server…']]);
+    const fromServer = await verifyWithMailbox(syntax.email);
+    if (fromServer) result = fromServer;
+  }
   const c = result.checks;
   let domainState = 'ok';
-  if (result.status === STATUS.INVALID) domainState = 'bad';
+  if (result.status === STATUS.INVALID && c.mailbox !== 'not-found') domainState = 'bad';
   else if (result.status === STATUS.UNKNOWN) domainState = 'wait';
   else if (c.disposable || result.suggestion || c.mx === 'a-fallback') domainState = 'warn';
-  renderAnatomy(syntax.email, local, domain, c.role ? 'warn' : 'ok', domainState);
+  // The part before @ is the problem when the mailbox doesn't exist or looks made up
+  let localState = 'ok';
+  if (c.mailbox === 'not-found') localState = 'bad';
+  else if (c.role || c.placeholder || c.mailbox === 'full') localState = 'warn';
+  renderAnatomy(syntax.email, local, domain, localState, domainState);
   renderChecklist(buildChecklist(result));
   renderVerdict(result);
 }
