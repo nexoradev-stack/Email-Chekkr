@@ -3,7 +3,7 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import { createVerifier, confidenceFor, providerType, STATUS, CONFIDENCE } from '../site/assets/js/engine/verify.js';
-import { fakeResolve, disposable, makeVerifier } from './helpers.js';
+import { fakeResolve, disposable, freeProviders, makeVerifier } from './helpers.js';
 
 test('verify: valid personal address', async () => {
   const r = await makeVerifier().verify('jane@example.com');
@@ -137,4 +137,85 @@ test('verify: every result has the same fields', async () => {
 test('verify: without a free-provider list nothing is marked free', async () => {
   const v = createVerifier({ resolve: fakeResolve, disposable });
   assert.equal((await v.verify('jane@gmail.com')).checks.free, false);
+});
+
+// ---------- Placeholder addresses ----------
+
+test('verify: placeholder names at real providers (test@ or sample@ at gmail.com) are risky, not valid', async () => {
+  const r = await makeVerifier().verify('test@gmail.com');
+  assert.equal(r.status, STATUS.RISKY);
+  assert.equal(r.checks.placeholder, true);
+  assert.match(r.reason, /placeholder/);
+  assert.ok(r.score < 60);
+});
+
+test('verify: the website demo address sample.user@gmail.com still shows as valid', async () => {
+  const r = await makeVerifier().verify('sample.user@gmail.com');
+  assert.equal(r.status, STATUS.VALID);
+});
+
+// ---------- Mailbox check (fake SMTP answers) ----------
+
+const withMailbox = (answer, calls = []) => createVerifier({
+  resolve: fakeResolve,
+  disposable,
+  freeProviders,
+  mailbox: async (email, domain, mx) => { calls.push({ email, domain, mx }); return { mailbox: answer }; }
+});
+
+test('mailbox: confirmed mailbox is valid with high confidence', async () => {
+  const calls = [];
+  const r = await withMailbox('exists', calls).verify('jane@example.com');
+  assert.equal(r.status, STATUS.VALID);
+  assert.equal(r.score, 99);
+  assert.equal(r.confidence, CONFIDENCE.HIGH);
+  assert.equal(r.checks.mailbox, 'exists');
+  assert.deepEqual(calls[0], { email: 'jane@example.com', domain: 'example.com', mx: ['mx1.example.com', 'mx2.example.com'] });
+});
+
+test('mailbox: mail server says no such user → invalid', async () => {
+  const r = await withMailbox('not-found').verify('jane@gmail.com');
+  assert.equal(r.status, STATUS.INVALID);
+  assert.equal(r.confidence, CONFIDENCE.HIGH);
+  assert.match(r.reason, /Mailbox does not exist/);
+});
+
+test('mailbox: catch-all and full mailboxes are risky', async () => {
+  const catchAll = await withMailbox('catch-all').verify('jane@example.com');
+  assert.equal(catchAll.status, STATUS.RISKY);
+  assert.match(catchAll.reason, /catch-all/);
+  const full = await withMailbox('full').verify('jane@example.com');
+  assert.equal(full.status, STATUS.RISKY);
+  assert.match(full.reason, /full/);
+});
+
+test('mailbox: no clear answer keeps the domain-only result', async () => {
+  const r = await withMailbox('unknown').verify('jane@example.com');
+  assert.equal(r.status, STATUS.VALID);
+  assert.equal(r.score, 95);
+  assert.equal(r.confidence, CONFIDENCE.MEDIUM);
+  assert.equal(r.checks.mailbox, 'unknown');
+});
+
+test('mailbox: skipped for disposable domains, bad domains and when turned off for a call', async () => {
+  const calls = [];
+  const v = withMailbox('exists', calls);
+  await v.verify('temp@mailinator.com');
+  await v.verify('jane@missing.com');
+  await v.verify('bad@@example.com');
+  const skipped = await v.verify('jane@example.com', { checkMailbox: false });
+  assert.equal(calls.length, 0);
+  assert.equal(skipped.checks.mailbox, 'not-checked');
+});
+
+test('mailbox: a domain with no MX record is asked directly', async () => {
+  const calls = [];
+  await withMailbox('unknown', calls).verify('jane@webonly.com');
+  assert.deepEqual(calls[0].mx, ['webonly.com']);
+});
+
+test('mailbox: without a checker nothing changes (the website)', async () => {
+  const r = await makeVerifier().verify('jane@example.com');
+  assert.equal(r.checks.mailbox, 'not-checked');
+  assert.equal(r.score, 95);
 });

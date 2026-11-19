@@ -3,7 +3,7 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import { isDisposable } from '../site/assets/js/engine/verify.js';
-import { ROLE_ACCOUNTS } from '../site/assets/js/engine/lists.js';
+import { ROLE_ACCOUNTS, isPlaceholder } from '../site/assets/js/engine/lists.js';
 import { disposable, readList } from './helpers.js';
 
 test('disposable: matches subdomains of listed domains', () => {
@@ -42,4 +42,17 @@ test('free providers and disposable domains never overlap', () => {
 test('team addresses: common team inboxes are on the list, personal names are not', () => {
   for (const r of ['info', 'sales', 'support', 'admin', 'noreply', 'hr']) assert.ok(ROLE_ACCOUNTS.has(r), r);
   for (const p of ['jane', 'sam', 'alex']) assert.ok(!ROLE_ACCOUNTS.has(p), p);
+});
+
+test('placeholder: obvious made-up names are caught', () => {
+  for (const local of ['sample', 'test', 'TEST', 'test123', 'fake', 'dummy', 'asdf', 'qwerty', 'john.doe', 'jane_doe',
+    'your.email', 'noemail', 'sample+news', 'aaaa', '123456', 'example', 'nobody']) {
+    assert.equal(isPlaceholder(local), true, local);
+  }
+});
+
+test('placeholder: real-looking names are left alone', () => {
+  for (const local of ['jane', 'sam', 'alex.kumar', 'priya.s', 'sample.user', 'testa', 'contest', 'fakhri', 'demon', 'aa', 'r2d2']) {
+    assert.equal(isPlaceholder(local), false, local);
+  }
 });
