@@ -1,0 +1,86 @@
+# Daily refresh of the disposable (temporary inbox) domain list.
+#
+# Runs on GitHub's free runners, then sends the update to GitLab (the main copy of this project)
+# as a merge request for you to review. It never changes main by itself.
+# GitLab copies main back to GitHub when you merge.
+#
+# One-time setup: a GitLab project access token saved here as the secret GITLAB_BOT_TOKEN.
+# Steps: docs/disposable-list-updates.md
+
+name: Update disposable domains
+
+on:
+  schedule:
+    - cron: "50 0 * * *"   # every day at 00:50 UTC = 06:20 in India
+  workflow_dispatch:         # "Run workflow" button in the Actions tab
+
+permissions:
+  contents: read
+
+concurrency:
+  group: update-disposable
+  cancel-in-progress: false
+
+jobs:
+  update:
+    runs-on: ubuntu-latest
+    env:
+      GITLAB_REPO: gitlab.com/deepanjandasgupta26/Email-Chekkr.git
+    steps:
+    - uses: actions/checkout@v4
+      with:
+        persist-credentials: false
+
+    - uses: actions/setup-node@v4
+      with:
+        node-version: 22.x
+
+    - name: Check the GitLab token is set
+      env:
+        GITLAB_BOT_TOKEN: ${{ secrets.GITLAB_BOT_TOKEN }}
+      run: |
+        if [ -z "$GITLAB_BOT_TOKEN" ]; then
+          echo "::error::The secret GITLAB_BOT_TOKEN is missing. See docs/disposable-list-updates.md."
+          exit 1
+        fi
+
+    - name: Download the latest list
+      run: npm run update:disposable
+
+    - name: Anything new?
+      id: diff
+      run: |
+        if git diff --quiet -- site/assets/data/disposable-domains.txt; then
+          echo "The list is already up to date. Nothing to do."
+          echo "changed=false" >> "$GITHUB_OUTPUT"
+        else
+          git diff --stat -- site/assets/data/disposable-domains.txt
+          echo "changed=true" >> "$GITHUB_OUTPUT"
+        fi
+
+    - name: Run the tests
+      if: steps.diff.outputs.changed == 'true'
+      run: npm test
+
+    - name: Check for secrets and personal emails
+      if: steps.diff.outputs.changed == 'true'
+      run: npm run check:secrets
+
+    - name: Open a merge request on GitLab
+      if: steps.diff.outputs.changed == 'true'
+      env:
+        GITLAB_BOT_TOKEN: ${{ secrets.GITLAB_BOT_TOKEN }}
+      run: |
+        DAY="$(date -u +%Y-%m-%d)"
+        BRANCH="auto/disposable-domains-${DAY}-${GITHUB_RUN_NUMBER}"
+        git config user.name "Email Chekkr bot"
+        git config user.email "email-chekkr-bot@users.noreply.gitlab.com"
+        git checkout -b "$BRANCH"
+        git add site/assets/data/disposable-domains.txt
+        git commit -m "Update disposable domain list (${DAY})"
+        git push "https://oauth2:${GITLAB_BOT_TOKEN}@${GITLAB_REPO}" "HEAD:refs/heads/${BRANCH}" \
+          -o merge_request.create \
+          -o merge_request.target=main \
+          -o "merge_request.title=Update disposable domain list (${DAY})" \
+          -o merge_request.remove_source_branch
+        echo "Merge request opened on GitLab for ${BRANCH}" >> "$GITHUB_STEP_SUMMARY"
