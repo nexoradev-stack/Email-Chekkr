@@ -2,13 +2,18 @@
 
 All notable changes to Email Chekkr. Newest first. Dates are in YYYY-MM-DD.
 
+## [Unreleased]
+
+### Changed
+- The daily disposable list update now runs on **GitHub Actions** (`.github/workflows/update-disposable.yml`) and opens the merge request on GitLab. GitLab.com needs card verification to run jobs, so `.gitlab-ci.yml` is removed; this also stops the empty failed pipelines on GitLab.
+
 ## [0.4.0] — 2026-11-19
 
 ### Added
 - **Confidence** (`high` / `medium` / `low`) and **provider type** (`disposable` / `free` / `custom`) on every result, next to the score. Shown on the website, in the API, the MCP tools and two new CSV columns (`chekkr_confidence`, `chekkr_provider`).
 - **New MCP tools:** `verify_csv` checks a whole CSV file (up to 10,000 rows) and returns it with result columns; `get_statistics` returns totals since the server started (no addresses kept).
 - **Free-provider list** moved to its own data file, `site/assets/data/free-providers.txt`, and grown from 36 to 131 domains (Microsoft, Yahoo, GMX, Zoho and Indian, European, Asian and American ISPs).
-- **Daily disposable list update** as a scheduled GitLab pipeline that opens a merge request (`.gitlab-ci.yml`). The update script now skips free providers and refuses suspiciously small downloads.
+- **Daily disposable list update** that opens a merge request. The update script now skips free providers and refuses suspiciously small downloads.
 - **About page** with credits, and an About link in every footer.
 - **SEO and sharing:** `robots.txt`, `sitemap.xml`, canonical links, Open Graph and Twitter card tags, and a 1200×630 social preview image, built from `docs/assets/og-image.svg` on every deploy.
 - **Docs folder:** results explained, limitations, troubleshooting, MCP setup for Claude, Claude Code, Cursor and Gemini CLI, and disposable list updates.

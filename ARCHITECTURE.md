@@ -85,7 +85,7 @@ flowchart LR
 | Contact and waitlist forms | Browser → Web3Forms | `assets/js/config.js` holds the public access key. Nothing is sent until a visitor submits a form. |
 | Verification engine | Browser (and Node for tests) | `assets/js/engine/*` — plain ES modules, no dependencies |
 | Domain lookups | Google / Cloudflare public DNS | Only the part after the `@` is sent |
-| Disposable domain list | Static file | `assets/data/disposable-domains.txt` (10,000+ domains, CC0), refreshed daily by a GitLab schedule ([docs](docs/disposable-list-updates.md)) |
+| Disposable domain list | Static file | `assets/data/disposable-domains.txt` (10,000+ domains, CC0), refreshed daily by GitHub Actions, sent to GitLab as a merge request ([docs](docs/disposable-list-updates.md)) |
 | Free-provider list | Static file | `assets/data/free-providers.txt` (130+ domains) |
 | CSV files | Browser memory | Never uploaded |
 

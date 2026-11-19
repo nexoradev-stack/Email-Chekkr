@@ -181,7 +181,7 @@ npm run check:secrets    # scan for keys and personal emails
 npm run serve            # website at http://localhost:8080
 npm start                # API at http://localhost:8787
 npm run mcp              # MCP server over stdio
-npm run update:disposable  # refresh the disposable domain list (runs daily on GitLab, see docs)
+npm run update:disposable  # refresh the disposable domain list (runs daily on GitHub Actions, see docs)
 npm run build:og         # build the link-preview image (needs rsvg-convert; done on every deploy)
 ```
 
@@ -233,8 +233,8 @@ docs/                       guides: results, limitations, troubleshooting, MCP s
 examples/                   MCP config and API request examples
 scripts/                    disposable list refresh, secrets check
 test/                       one test file per check, plus helpers.js (fake DNS)
-.github/                    CI (tests, audit, Docker), Pages deploy, issue and PR templates
-.gitlab/  .gitlab-ci.yml    issue and merge request templates; daily disposable list update
+.github/                    CI (tests, audit, Docker), Pages deploy, daily list update, issue and PR templates
+.gitlab/                    issue and merge request templates
 Dockerfile  render.yaml  .env.example
 ARCHITECTURE.md             how it all works, with diagrams
 CHANGELOG.md  CONTRIBUTING.md  SECURITY.md
