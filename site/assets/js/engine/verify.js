@@ -11,7 +11,7 @@
 
 import { checkSyntax } from './syntax.js';
 import { suggestDomain } from './typo.js';
-import { ROLE_ACCOUNTS, FREE_PROVIDERS } from './lists.js';
+import { ROLE_ACCOUNTS } from './lists.js';
 import { checkMailDomain } from './dns.js';
 
 /** Adds "did you mean …?" to a reason when there is a suggestion. */
@@ -20,6 +20,28 @@ function withHint(reason, suggestion) {
 }
 
 export const STATUS = Object.freeze({ VALID: 'valid', RISKY: 'risky', INVALID: 'invalid', UNKNOWN: 'unknown' });
+
+/**
+ * How sure we are about the status (not the same as the score):
+ *   high   — the evidence is clear (badly formed, domain gone, refuses email, known temporary inbox)
+ *   medium — the domain looks fine or a soft warning applies; the mailbox itself is never checked
+ *   low    — the lookup didn't answer, so we can't tell yet
+ */
+export const CONFIDENCE = Object.freeze({ HIGH: 'high', MEDIUM: 'medium', LOW: 'low' });
+
+/**
+ * What kind of mailbox provider the domain is:
+ *   disposable — a temporary inbox service
+ *   free       — a free personal mailbox (Gmail, Outlook, Yahoo …)
+ *   custom     — any other domain, usually a company or personal domain
+ *   null       — the address is badly formed, so there is no domain to judge
+ */
+export function providerType(checks) {
+  if (!checks.syntax) return null;
+  if (checks.disposable) return 'disposable';
+  if (checks.free) return 'free';
+  return 'custom';
+}
 
 /** Returns true when the domain, or any parent domain, is on the disposable list. */
 export function isDisposable(domain, disposableSet) {
@@ -43,11 +65,12 @@ export function parseDomainList(text) {
 
 /**
  * Creates a verifier.
- * @param {{ resolve: Function, disposable: Set<string>, cacheTtlMs?: number, cacheMax?: number, now?: () => number }} deps
+ * @param {{ resolve: Function, disposable: Set<string>, freeProviders?: Set<string>, cacheTtlMs?: number, cacheMax?: number, now?: () => number }} deps
+ *   freeProviders comes from site/assets/data/free-providers.txt (read it with parseDomainList).
  *   cacheTtlMs / cacheMax keep a long-running server's domain cache fresh and bounded.
  *   The browser keeps the defaults (cache for the whole visit).
  */
-export function createVerifier({ resolve, disposable = new Set(), cacheTtlMs = Infinity, cacheMax = Infinity, now = Date.now }) {
+export function createVerifier({ resolve, disposable = new Set(), freeProviders = new Set(), cacheTtlMs = Infinity, cacheMax = Infinity, now = Date.now }) {
   const domainCache = new Map(); // domain -> { at, pending }
 
   function lookupDomain(asciiDomain) {
@@ -68,10 +91,10 @@ export function createVerifier({ resolve, disposable = new Set(), cacheTtlMs = I
 
   /**
    * Verifies one email address.
-   * @returns {Promise<{ email: string, status: string, score: number, reason: string, suggestion: string|null,
-   *   checks: { syntax: boolean, domain: string|null, mx: string, disposable: boolean, role: boolean, free: boolean } }>}
+   * @returns {Promise<{ email: string, status: string, score: number, confidence: 'high'|'medium'|'low',
+   *   provider_type: 'disposable'|'free'|'custom'|null, reason: string, suggestion: string|null, checks: { syntax: boolean, domain: string|null, mx: string, disposable: boolean, role: boolean, free: boolean } }>}
    */
-  async function verify(input) {
+  async function decide(input) {
     const syntax = checkSyntax(input);
     const base = {
       email: syntax.email,
@@ -90,7 +113,7 @@ export function createVerifier({ resolve, disposable = new Set(), cacheTtlMs = I
       ...base.checks,
       disposable: isDisposable(domain, disposable),
       role: ROLE_ACCOUNTS.has(localLower.split('+')[0]),
-      free: FREE_PROVIDERS.has(domain)
+      free: freeProviders.has(domain)
     };
     const dns = await lookupDomain(domain);
     checks.mx = dns.result;
@@ -127,7 +150,22 @@ export function createVerifier({ resolve, disposable = new Set(), cacheTtlMs = I
     return { ...base, checks, status: STATUS.VALID, score, reason: 'Address and domain look deliverable' };
   }
 
-  return { verify, lookupDomain };
+  /** Verifies one address and adds confidence and provider_type next to the score. */
+  async function verify(input) {
+    const r = await decide(input);
+    return { ...r, confidence: confidenceFor(r), provider_type: providerType(r.checks) };
+  }
+
+  return { verify, lookupDomain, freeProviders, cacheSize: () => domainCache.size };
+}
+
+/** Works out the confidence for a finished result (see CONFIDENCE). */
+export function confidenceFor(result) {
+  const { status, checks } = result;
+  if (status === STATUS.UNKNOWN) return CONFIDENCE.LOW;
+  if (status === STATUS.INVALID) return CONFIDENCE.HIGH;
+  if (status === STATUS.RISKY && checks.disposable) return CONFIDENCE.HIGH;
+  return CONFIDENCE.MEDIUM;
 }
 
 /**

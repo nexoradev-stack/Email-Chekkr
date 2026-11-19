@@ -1,0 +1,159 @@
+# Email Chekkr — free consumer mailbox providers.
+# One domain per line. Lines starting with # are comments.
+# A free provider is NOT a problem by itself: it only tells you the address is personal, not a company one.
+# Used by the website, the API and the MCP server. Add a domain here and it is picked up everywhere.
+
+# Google
+gmail.com
+googlemail.com
+
+# Microsoft
+outlook.com
+outlook.in
+outlook.co.uk
+hotmail.com
+hotmail.co.uk
+hotmail.fr
+hotmail.de
+hotmail.it
+hotmail.es
+live.com
+live.in
+live.co.uk
+live.fr
+msn.com
+passport.com
+
+# Yahoo / AOL
+yahoo.com
+yahoo.co.in
+yahoo.in
+yahoo.co.uk
+yahoo.ca
+yahoo.com.au
+yahoo.fr
+yahoo.de
+yahoo.it
+yahoo.es
+yahoo.co.jp
+yahoo.com.br
+yahoo.com.sg
+ymail.com
+rocketmail.com
+aol.com
+aim.com
+
+# Apple
+icloud.com
+me.com
+mac.com
+
+# Privacy-focused
+protonmail.com
+protonmail.ch
+proton.me
+pm.me
+tutanota.com
+tutanota.de
+tuta.io
+tutamail.com
+keemail.me
+mailfence.com
+posteo.de
+posteo.net
+disroot.org
+startmail.com
+hushmail.com
+runbox.com
+fastmail.com
+fastmail.fm
+hey.com
+skiff.com
+
+# GMX / Web.de / Mail.com family
+gmx.com
+gmx.de
+gmx.net
+gmx.at
+gmx.ch
+gmx.co.uk
+web.de
+mail.com
+email.com
+usa.com
+myself.com
+consultant.com
+post.com
+
+# Zoho
+zoho.com
+zohomail.com
+zohomail.in
+
+# India
+rediffmail.com
+rediff.com
+indiatimes.com
+
+# Russia / Eastern Europe
+yandex.com
+yandex.ru
+ya.ru
+mail.ru
+inbox.ru
+list.ru
+bk.ru
+rambler.ru
+seznam.cz
+wp.pl
+o2.pl
+onet.pl
+interia.pl
+
+# Western Europe
+orange.fr
+wanadoo.fr
+free.fr
+laposte.net
+sfr.fr
+libero.it
+virgilio.it
+tiscali.it
+t-online.de
+freenet.de
+btinternet.com
+sky.com
+virginmedia.com
+ziggo.nl
+telenet.be
+
+# Asia
+qq.com
+foxmail.com
+163.com
+126.com
+yeah.net
+sina.com
+sohu.com
+aliyun.com
+naver.com
+hanmail.net
+daum.net
+
+# Americas / Oceania
+comcast.net
+verizon.net
+att.net
+sbcglobal.net
+bellsouth.net
+cox.net
+charter.net
+earthlink.net
+shaw.ca
+rogers.com
+sympatico.ca
+bigpond.com
+optusnet.com.au
+uol.com.br
+bol.com.br
+terra.com.br

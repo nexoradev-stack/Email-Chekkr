@@ -3,8 +3,8 @@
 
 import { checkSyntax } from '../site/assets/js/engine/syntax.js';
 import { suggestDomain } from '../site/assets/js/engine/typo.js';
-import { FREE_PROVIDERS } from '../site/assets/js/engine/lists.js';
-import { createVerifier, isDisposable, runPool } from '../site/assets/js/engine/verify.js';
+import { createVerifier, isDisposable, runPool, STATUS } from '../site/assets/js/engine/verify.js';
+import { parseCsv, findEmailColumn, toCsv } from '../site/assets/js/engine/csv.js';
 
 const DOMAIN_MEANING = {
   mx: 'Has a mail server (MX record)',
@@ -15,24 +15,96 @@ const DOMAIN_MEANING = {
   error: 'Lookup timed out — try again'
 };
 
+/** Columns added to every row of a checked CSV (same names as the website download). */
+export const CSV_COLUMNS = ['chekkr_status', 'chekkr_score', 'chekkr_reason', 'chekkr_suggestion', 'chekkr_confidence', 'chekkr_provider'];
+
+const emptyCounts = () => ({ valid: 0, risky: 0, invalid: 0, unknown: 0 });
+
 /**
- * @param {{ resolve: Function, disposable: Set<string>, concurrency?: number, cacheTtlMs?: number, cacheMax?: number }} deps
+ * @param {{ resolve: Function, disposable: Set<string>, freeProviders?: Set<string>, concurrency?: number,
+ *   cacheTtlMs?: number, cacheMax?: number, csvMaxRows?: number, now?: () => number }} deps
  */
-export function createService({ resolve, disposable, concurrency = 10, cacheTtlMs, cacheMax }) {
-  const verifier = createVerifier({ resolve, disposable, cacheTtlMs, cacheMax });
+export function createService({
+  resolve, disposable, freeProviders = new Set(), concurrency = 10, cacheTtlMs, cacheMax, csvMaxRows = 10_000, now = Date.now
+}) {
+  const verifier = createVerifier({ resolve, disposable, freeProviders, cacheTtlMs, cacheMax });
+
+  // Running totals since the server started (kept in memory only; no addresses are stored).
+  const startedAt = now();
+  const stats = { emails_checked: 0, domains_checked: 0, csv_files_checked: 0, by_status: emptyCounts() };
+
+  function count(results) {
+    for (const r of results) {
+      stats.emails_checked += 1;
+      stats.by_status[r.status] += 1;
+    }
+  }
+
+  function summarize(results) {
+    const summary = { total: results.length, ...emptyCounts() };
+    for (const r of results) summary[r.status] += 1;
+    return summary;
+  }
 
   /** Checks one address. */
-  function verifyEmail(email) {
-    return verifier.verify(email);
+  async function verifyEmail(email) {
+    const result = await verifier.verify(email);
+    count([result]);
+    return result;
   }
 
   /** Checks many addresses; results keep the input order, with a summary of counts. */
   async function verifyEmails(emails) {
-    const started = Date.now();
+    const started = now();
     const results = await runPool(emails, (e) => verifier.verify(e), { concurrency });
-    const summary = { total: results.length, valid: 0, risky: 0, invalid: 0, unknown: 0 };
-    for (const r of results) summary[r.status] += 1;
-    return { summary, results, took_ms: Date.now() - started };
+    count(results);
+    return { summary: summarize(results), results, took_ms: now() - started };
+  }
+
+  /**
+   * Checks every address in a CSV file (given as text).
+   * Finds the email column, keeps the other columns, and adds the chekkr_* columns.
+   * @param {string} text  the CSV content
+   * @param {{ onlyValid?: boolean, previewMax?: number }} options
+   */
+  async function verifyCsv(text, { onlyValid = false, previewMax = 20 } = {}) {
+    const started = now();
+    const rows = parseCsv(text);
+    const { index, hasHeader } = findEmailColumn(rows);
+    if (index < 0) return { error: 'No email column found. Add a header called "email", or put addresses in one column.' };
+
+    const data = hasHeader ? rows.slice(1) : rows;
+    if (data.length === 0) return { error: 'The CSV has no rows to check.' };
+    if (data.length > csvMaxRows) return { error: `The CSV has ${data.length} rows; the limit is ${csvMaxRows} per call. Split the file and try again.` };
+
+    const header = hasHeader ? rows[0] : rows[0].map((_, i) => (i === index ? 'email' : `column_${i + 1}`));
+    const results = await runPool(data.map((r) => r[index] ?? ''), (e) => verifier.verify(e), { concurrency });
+    count(results);
+    stats.csv_files_checked += 1;
+
+    const out = [[...header, ...CSV_COLUMNS]];
+    data.forEach((row, i) => {
+      const r = results[i];
+      if (onlyValid && r.status !== STATUS.VALID) return;
+      out.push([...row, r.status, r.score, r.reason, r.suggestion || '', r.confidence, r.provider_type || '']);
+    });
+
+    // A short list of the addresses that need attention, so an AI can explain them without reading the whole file
+    const needsAttention = [];
+    results.forEach((r, i) => {
+      if (r.status !== STATUS.VALID && needsAttention.length < previewMax) {
+        needsAttention.push({ row: i + 1, email: r.email, status: r.status, reason: r.reason, suggestion: r.suggestion });
+      }
+    });
+
+    return {
+      summary: summarize(results),
+      email_column: header[index],
+      rows_in_output: out.length - 1,
+      needs_attention: needsAttention,
+      csv: toCsv(out),
+      took_ms: now() - started
+    };
   }
 
   /** Checks a domain on its own: does it exist, does it take email, is it disposable or free? */
@@ -44,7 +116,10 @@ export function createService({ resolve, disposable, concurrency = 10, cacheTtlM
     }
     const domain = syntax.asciiDomain;
     const dns = await verifier.lookupDomain(domain);
+    stats.domains_checked += 1;
     const suggestion = suggestDomain(domain);
+    const disposableHit = isDisposable(domain, disposable);
+    const free = freeProviders.has(domain);
     return {
       domain,
       valid_format: true,
@@ -52,11 +127,23 @@ export function createService({ resolve, disposable, concurrency = 10, cacheTtlM
       mail: dns.result,
       meaning: DOMAIN_MEANING[dns.result],
       mx: dns.mx,
-      disposable: isDisposable(domain, disposable),
-      free_provider: FREE_PROVIDERS.has(domain),
+      disposable: disposableHit,
+      free_provider: free,
+      provider_type: disposableHit ? 'disposable' : free ? 'free' : 'custom',
       suggestion: suggestion && suggestion !== domain ? suggestion : null
     };
   }
 
-  return { verifyEmail, verifyEmails, checkDomain };
+  /** Totals since the server started. No email addresses are kept. */
+  function getStatistics() {
+    return {
+      ...structuredClone(stats),
+      domains_in_cache: verifier.cacheSize(),
+      lists: { disposable_domains: disposable.size, free_providers: freeProviders.size },
+      uptime_seconds: Math.round((now() - startedAt) / 1000),
+      started_at: new Date(startedAt).toISOString()
+    };
+  }
+
+  return { verifyEmail, verifyEmails, verifyCsv, checkDomain, getStatistics };
 }

@@ -10,14 +10,8 @@ export const ROLE_ACCOUNTS = new Set([
   'security', 'service', 'support', 'team', 'webmaster'
 ]);
 
-/** Free consumer mailbox providers (informational, not a problem by itself). */
-export const FREE_PROVIDERS = new Set([
-  'gmail.com', 'googlemail.com', 'yahoo.com', 'yahoo.co.in', 'yahoo.co.uk', 'ymail.com', 'rocketmail.com',
-  'hotmail.com', 'hotmail.co.uk', 'outlook.com', 'live.com', 'msn.com', 'icloud.com', 'me.com', 'mac.com',
-  'aol.com', 'protonmail.com', 'proton.me', 'pm.me', 'gmx.com', 'gmx.de', 'gmx.net', 'mail.com',
-  'yandex.com', 'yandex.ru', 'zoho.com', 'zohomail.com', 'rediffmail.com', 'web.de', 'tutanota.com',
-  'fastmail.com', 'hey.com', 'qq.com', '163.com', '126.com', 'naver.com'
-]);
+// Free consumer mailbox providers live in site/assets/data/free-providers.txt
+// (loaded by the website, the API and the MCP server, like the disposable list).
 
 /** Domains used to suggest a fix for likely typos (gmial.com → gmail.com). */
 export const TYPO_TARGETS = [

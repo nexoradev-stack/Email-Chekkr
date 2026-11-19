@@ -1,0 +1,5 @@
+# Email Chekkr — every page may be indexed.
+User-agent: *
+Allow: /
+
+Sitemap: https://nexoradev-stack.github.io/Email-Chekkr/sitemap.xml

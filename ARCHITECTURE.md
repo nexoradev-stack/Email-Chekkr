@@ -85,7 +85,8 @@ flowchart LR
 | Contact and waitlist forms | Browser → Web3Forms | `assets/js/config.js` holds the public access key. Nothing is sent until a visitor submits a form. |
 | Verification engine | Browser (and Node for tests) | `assets/js/engine/*` — plain ES modules, no dependencies |
 | Domain lookups | Google / Cloudflare public DNS | Only the part after the `@` is sent |
-| Disposable domain list | Static file | `assets/data/disposable-domains.txt` (10,000+ domains, CC0) |
+| Disposable domain list | Static file | `assets/data/disposable-domains.txt` (10,000+ domains, CC0), refreshed daily by a GitLab schedule ([docs](docs/disposable-list-updates.md)) |
+| Free-provider list | Static file | `assets/data/free-providers.txt` (130+ domains) |
 | CSV files | Browser memory | Never uploaded |
 
 ### The verification pipeline
@@ -130,15 +131,17 @@ flowchart TD
 
 **Scoring (0–100):** MX found starts at 95, address-record only at 75. Penalties: likely typo −40, disposable −60, team address −25. Invalid is 0.
 
+**Confidence:** high for clear evidence (badly formed, no domain, refuses email, disposable), medium for valid and soft warnings (the mailbox is never checked), low for timeouts. **Provider type:** disposable, free or custom. Full details: [docs/statuses.md](docs/statuses.md).
+
 ### Engine modules
 
 | File | Job |
 |---|---|
 | `syntax.js` | `checkSyntax()` — one @, allowed characters, length limits, extension, international domains (punycode) |
 | `typo.js` | `suggestDomain()` — edit distance against common providers, plus extension fixes (`.con` → `.com`) |
-| `lists.js` | Team addresses (`info@`, `sales@`…), free providers, typo targets |
+| `lists.js` | Team addresses (`info@`, `sales@`…), typo targets, extension fixes. Free providers and disposable domains are data files in `site/assets/data/` |
 | `dns.js` | `createDohResolver()` (Google first, Cloudflare fallback, timeout) and `checkMailDomain()` (MX → A/AAAA fallback → null MX → NXDOMAIN) |
-| `verify.js` | `createVerifier()` combines everything into status, score, reason and suggestion; `runPool()` runs bulk checks 8 at a time |
+| `verify.js` | `createVerifier()` combines everything into status, score, confidence, provider type, reason and suggestion; `runPool()` runs bulk checks 8 at a time |
 | `csv.js` | Reads CSVs, finds the email column, writes results with formula-safe cells |
 
 ### Bulk check flow
@@ -198,7 +201,7 @@ flowchart LR
   class RD api
 ```
 
-- `npm test` runs 45 tests (engine, API, MCP) with no network (DNS is faked).
+- `npm test` runs 76 tests, one file per check (syntax, typo, dns, verify, lists, csv, pool, service, mcp, api), with no network (DNS is faked in `test/helpers.js`).
 - `npm run update:disposable` refreshes the disposable domain list.
 
 ### Limits of the website
@@ -252,7 +255,7 @@ flowchart LR
 | `GET /v1/verify?email=` · `POST /v1/verify` | Check one address |
 | `POST /v1/verify/batch` | Check a list; results keep the input order, plus a summary |
 | `GET /v1/domain?domain=` | Check a domain: exists, accepts email, MX hosts, disposable, free provider |
-| `POST /mcp` | MCP (JSON-RPC) for AI tools — tools `verify_email`, `verify_emails_batch`, `check_domain` |
+| `POST /mcp` | MCP (JSON-RPC) for AI tools — tools `verify_email`, `verify_emails_batch`, `check_domain`, `verify_csv`, `get_statistics` |
 | `GET /health` · `GET /version` · `GET /` | Health check, version, endpoint list |
 
 ### Access and limits

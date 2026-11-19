@@ -8,6 +8,17 @@
   <meta property="og:title" content="Bulk check · Email Chekkr">
   <meta property="og:description" content="Drop a CSV and get every email checked in your browser. Up to 10,000 rows, with a result, score and reason for each.">
   <meta property="og:type" content="website">
+  <meta property="og:url" content="https://nexoradev-stack.github.io/Email-Chekkr/bulk.html">
+  <meta property="og:site_name" content="Email Chekkr">
+  <meta property="og:image" content="https://nexoradev-stack.github.io/Email-Chekkr/assets/img/og-image.png">
+  <meta property="og:image:width" content="1200">
+  <meta property="og:image:height" content="630">
+  <meta property="og:image:alt" content="Email Chekkr — Check every email before you send">
+  <meta name="twitter:card" content="summary_large_image">
+  <meta name="twitter:title" content="Bulk check · Email Chekkr">
+  <meta name="twitter:description" content="Drop a CSV and get every email checked in your browser. Up to 10,000 rows, with a result, score and reason for each.">
+  <meta name="twitter:image" content="https://nexoradev-stack.github.io/Email-Chekkr/assets/img/og-image.png">
+  <link rel="canonical" href="https://nexoradev-stack.github.io/Email-Chekkr/bulk.html">
   <meta name="theme-color" content="#040A18">
   <script>try{var t=localStorage.getItem('email-chekkr-theme');if(t==='light'||t==='dark')document.documentElement.setAttribute('data-theme',t)}catch(e){}</script>
   <link rel="icon" href="assets/img/favicon.svg" type="image/svg+xml">
@@ -91,12 +102,14 @@
           <div class="split">
             <div>
               <span class="eyebrow">Your file back</span>
-              <h2 id="file-title" style="margin-top:14px">Every column kept, four added</h2>
+              <h2 id="file-title" style="margin-top:14px">Every column kept, six added</h2>
               <ul class="ticks">
                 <li><code>chekkr_status</code>: valid, risky, invalid or unknown</li>
                 <li><code>chekkr_score</code>: 0 to 100</li>
                 <li><code>chekkr_reason</code>: why, in plain words</li>
                 <li><code>chekkr_suggestion</code>: the fixed address when there's a likely typo</li>
+                <li><code>chekkr_confidence</code>: high, medium or low</li>
+                <li><code>chekkr_provider</code>: disposable, free or custom (company) domain</li>
               </ul>
             </div>
             <div>
@@ -145,6 +158,7 @@
         <div>
           <h4>Company</h4>
           <ul>
+            <li><a href="about.html">About</a></li>
             <li><a href="contact.html">Contact</a></li>
             <li><a href="pricing.html#waitlist">Waitlist</a></li>
             <li><a href="https://github.com/nexoradev-stack/Email-Chekkr">GitHub</a></li>

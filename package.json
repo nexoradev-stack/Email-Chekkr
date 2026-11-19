@@ -1,6 +1,6 @@
 {
   "name": "email-chekkr",
-  "version": "0.3.0",
+  "version": "0.4.0",
   "private": true,
   "description": "Email Chekkr — Email verification. Website, REST API and MCP server that check format, domain, mail server, disposable domains, role addresses and typos.",
   "type": "module",
@@ -8,12 +8,13 @@
     "node": ">=20"
   },
   "scripts": {
-    "test": "node --test test/engine.test.js test/api.test.js",
+    "test": "node --test",
     "start": "node server/index.js",
     "mcp": "node server/stdio.js",
     "serve": "python3 -m http.server 8080 --directory site",
     "update:disposable": "node scripts/update-disposable.js",
-    "check:secrets": "node scripts/check-secrets.js"
+    "check:secrets": "node scripts/check-secrets.js",
+    "build:og": "rsvg-convert -w 1200 -h 630 docs/assets/og-image.svg -o site/assets/img/og-image.png"
   },
   "bin": {
     "email-chekkr-mcp": "./server/stdio.js"

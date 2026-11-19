@@ -8,9 +8,9 @@ ENV NODE_ENV=production \
 WORKDIR /app
 COPY package.json ./
 COPY server ./server
-# The shared checking engine and the disposable domain list
+# The shared checking engine and its lists (disposable domains, free providers)
 COPY site/assets/js/engine ./site/assets/js/engine
-COPY site/assets/data/disposable-domains.txt ./site/assets/data/disposable-domains.txt
+COPY site/assets/data/disposable-domains.txt site/assets/data/free-providers.txt ./site/assets/data/
 
 USER node
 EXPOSE 8787
