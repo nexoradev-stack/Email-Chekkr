@@ -28,7 +28,7 @@ const KEY = 'test-key-123';
 
 async function startApi(env = {}) {
   const config = loadConfig({ EMAIL_CHEKKR_API_KEYS: KEY, EMAIL_CHEKKR_CORS_ORIGINS: 'https://allowed.example', ...env });
-  const service = createService({ resolve: fakeResolve, disposable: new Set(['mailinator.com']) });
+  const service = createService({ resolve: fakeResolve, disposable: new Set(['mailinator.com']), freeProviders: new Set(['gmail.com']) });
   const server = createServer(createApp({ config, service }));
   await new Promise((r) => server.listen(0, '127.0.0.1', r));
   const base = `http://127.0.0.1:${server.address().port}`;
@@ -92,7 +92,7 @@ test('node resolver: maps answers and errors', async () => {
 });
 
 test('service: domain check', async () => {
-  const service = createService({ resolve: fakeResolve, disposable: new Set(['mailinator.com']) });
+  const service = createService({ resolve: fakeResolve, disposable: new Set(['mailinator.com']), freeProviders: new Set(['gmail.com']) });
   const acme = await service.checkDomain('jane@Example.com');
   assert.equal(acme.domain, 'example.com');
   assert.equal(acme.accepts_email, true);
@@ -227,7 +227,7 @@ test('API: CORS only for allowed sites', async () => {
 });
 
 test('MCP handler: initialize, list tools, call tools, errors', async () => {
-  const service = createService({ resolve: fakeResolve, disposable: new Set(['mailinator.com']) });
+  const service = createService({ resolve: fakeResolve, disposable: new Set(['mailinator.com']), freeProviders: new Set(['gmail.com']) });
   const handle = createMcpHandler({ service, batchMax: 3 });
 
   const init = await handle({ jsonrpc: '2.0', id: 1, method: 'initialize', params: { protocolVersion: '2025-03-26' } });
@@ -236,7 +236,7 @@ test('MCP handler: initialize, list tools, call tools, errors', async () => {
   assert.equal(await handle({ jsonrpc: '2.0', method: 'notifications/initialized' }), null);
 
   const list = await handle({ jsonrpc: '2.0', id: 2, method: 'tools/list' });
-  assert.deepEqual(list.result.tools.map((t) => t.name), ['verify_email', 'verify_emails_batch', 'check_domain']);
+  assert.deepEqual(list.result.tools.map((t) => t.name), ['verify_email', 'verify_emails_batch', 'check_domain', 'verify_csv', 'get_statistics']);
 
   const one = await handle({ jsonrpc: '2.0', id: 3, method: 'tools/call', params: { name: 'verify_email', arguments: { email: 'jane@example.com' } } });
   assert.equal(one.result.structuredContent.status, 'valid');
@@ -265,7 +265,7 @@ test('API: MCP over HTTP needs a key', async () => {
     assert.equal((await api.post('/mcp', msg)).status, 401);
     const ok = await api.post('/mcp', msg, { authorization: `Bearer ${KEY}` });
     assert.equal(ok.status, 200);
-    assert.equal((await ok.json()).result.tools.length, 3);
+    assert.equal((await ok.json()).result.tools.length, 5);
     const note = await api.post('/mcp', { jsonrpc: '2.0', method: 'notifications/initialized' }, { authorization: `Bearer ${KEY}` });
     assert.equal(note.status, 202);
     assert.equal((await api.get('/mcp')).status, 405);
