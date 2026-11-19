@@ -276,4 +276,4 @@ Disposable domain data: [disposable-email-domains](https://github.com/disposable
 
 ## 📄 Licence
 
-© 2026 Email Chekkr. All rights reserved. The source is published for transparency; no licence to reuse it is granted.
+© 2026 Email Chekkr. All rights reserved. The source is published for transparency; no licence to reuse it is granted. See [LICENSE](LICENSE) for the full terms.

@@ -2,6 +2,7 @@
   "name": "email-chekkr",
   "version": "0.4.0",
   "private": true,
+  "license": "UNLICENSED",
   "description": "Email Chekkr — Email verification. Website, REST API and MCP server that check format, domain, mail server, disposable domains, role addresses and typos.",
   "type": "module",
   "engines": {
