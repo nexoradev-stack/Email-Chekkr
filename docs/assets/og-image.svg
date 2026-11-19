@@ -1,0 +1,40 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1200" height="630" viewBox="0 0 1200 630">
+  <defs>
+    <radialGradient id="sphere" cx="0.36" cy="0.3" r="0.75"><stop offset="0" stop-color="#9AA8FF"/><stop offset="0.45" stop-color="#3952FF"/><stop offset="1" stop-color="#18237E"/></radialGradient>
+    <radialGradient id="glow" cx="0.5" cy="0.5" r="0.5"><stop offset="0" stop-color="#3952FF" stop-opacity="0.35"/><stop offset="1" stop-color="#3952FF" stop-opacity="0"/></radialGradient>
+    <radialGradient id="big" cx="0.36" cy="0.3" r="0.8"><stop offset="0" stop-color="#7C8CFF"/><stop offset="0.5" stop-color="#3952FF"/><stop offset="1" stop-color="#0E1660"/></radialGradient>
+  </defs>
+  <rect width="1200" height="630" fill="#040A18"/>
+  <circle cx="1010" cy="330" r="320" fill="url(#glow)"/>
+  <!-- globe with orbit rings -->
+  <ellipse cx="1010" cy="330" rx="230" ry="72" fill="none" stroke="#B3C5D0" stroke-opacity="0.22" stroke-width="2" transform="rotate(-18 1010 330)"/>
+  <circle cx="1010" cy="330" r="150" fill="url(#big)"/>
+  <ellipse cx="965" cy="268" rx="55" ry="28" fill="#FFFDF9" opacity="0.16" transform="rotate(-25 965 268)"/>
+  <path d="M950 335l42 42 78-88" fill="none" stroke="#FFFDF9" stroke-width="26" stroke-linecap="round" stroke-linejoin="round"/>
+  <ellipse cx="1010" cy="330" rx="230" ry="72" fill="none" stroke="#B3C5D0" stroke-opacity="0.35" stroke-width="2" stroke-dasharray="0 392 400" transform="rotate(-18 1010 330)"/>
+
+  <!-- logo + wordmark -->
+  <g transform="translate(80 78)">
+    <rect width="64" height="64" rx="16" fill="#0B1430" stroke="#B3C5D0" stroke-opacity="0.18"/>
+    <circle cx="32" cy="32" r="19" fill="url(#sphere)"/>
+    <path d="M24.5 32.5l5.5 5.5 10-11" fill="none" stroke="#FFFDF9" stroke-width="4.4" stroke-linecap="round" stroke-linejoin="round"/>
+    <text x="84" y="44" font-family="Inter" font-size="34" font-weight="400" fill="#FFFDF9">Email</text><text x="182" y="44" font-family="Inter" font-size="34" font-weight="500" fill="#FFFDF9">Chekkr</text>
+  </g>
+
+  <!-- headline -->
+  <text font-family="Inter" font-weight="500" font-size="68" letter-spacing="-2" fill="#FFFDF9">
+    <tspan x="80" y="262">Check every email</tspan>
+    <tspan x="80" y="342">before you send.</tspan>
+  </text>
+  <text x="80" y="402" font-family="Inter" font-size="26" fill="#B3C5D0">Format · domain · mail server · temp inboxes · typos</text>
+
+  <!-- result chips -->
+  <g font-family="Inter" font-weight="500" font-size="22">
+    <g transform="translate(80 452)"><rect width="128" height="48" rx="24" fill="#5BD69B" fill-opacity="0.14" stroke="#5BD69B" stroke-opacity="0.45"/><circle cx="26" cy="24" r="6" fill="#5BD69B"/><text x="42" y="32" fill="#5BD69B">Valid</text></g>
+    <g transform="translate(224 452)"><rect width="122" height="48" rx="24" fill="#F5B74A" fill-opacity="0.14" stroke="#F5B74A" stroke-opacity="0.45"/><circle cx="26" cy="24" r="6" fill="#F5B74A"/><text x="42" y="32" fill="#F5B74A">Risky</text></g>
+    <g transform="translate(362 452)"><rect width="142" height="48" rx="24" fill="#FF8A8A" fill-opacity="0.14" stroke="#FF8A8A" stroke-opacity="0.45"/><circle cx="26" cy="24" r="6" fill="#FF8A8A"/><text x="42" y="32" fill="#FF8A8A">Invalid</text></g>
+  </g>
+
+  <text x="80" y="566" font-family="DejaVu Sans Mono" font-size="20" fill="#B3C5D0" fill-opacity="0.8">Free single checks · CSV bulk · API · MCP for AI tools</text>
+  <rect x="0" y="622" width="1200" height="8" fill="#3952FF"/>
+</svg>
