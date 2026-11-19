@@ -1,0 +1,36 @@
+Email Chekkr — Proprietary Licence
+
+Copyright (c) 2026 nexoradev-stack (Email Chekkr). All rights reserved.
+
+The source code in this repository is published so people can see how
+Email Chekkr works. Publishing it does not give you a licence to use it.
+
+You MAY:
+  - read the code and the documentation;
+  - open issues and merge requests to suggest changes;
+  - use the public Email Chekkr website, API and MCP server under their
+    own terms (see the Privacy page on the website).
+
+You MAY NOT, without written permission from the copyright holder:
+  - copy, modify, merge or publish this code or any part of it;
+  - run it, host it or offer it as a service, paid or free;
+  - sell, sublicense or redistribute it;
+  - use it to build a competing product;
+  - remove or change this notice.
+
+Contributions: by sending a merge request you agree that your
+contribution may be used in Email Chekkr under this licence, and you
+confirm you have the right to give it.
+
+Third-party material keeps its own licence:
+  - site/assets/data/disposable-domains.txt comes from
+    https://github.com/disposable-email-domains/disposable-email-domains
+    (CC0 1.0, public domain).
+
+THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS
+OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF
+MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT.
+IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY
+CLAIM, DAMAGES OR OTHER LIABILITY ARISING FROM THE SOFTWARE OR ITS USE.
+
+For permission requests, open an issue on the repository.
