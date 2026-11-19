@@ -10,7 +10,9 @@ const INSTRUCTIONS =
   'Email Chekkr checks email addresses before sending: format, domain, mail server (MX), temporary/disposable inboxes, ' +
   'team addresses like info@, and typos. Status is valid, risky, invalid or unknown with a 0–100 score, a confidence (high, medium, low) and a provider_type ' +
   '(disposable, free, custom). Use verify_csv for whole CSV files and get_statistics for totals since the server started. ' +
-  'It does not log in to mail servers, so "valid" means the address and domain look deliverable, not that the mailbox was confirmed.';
+  'Placeholder names like test@ or sample@ are flagged. When the server has the mailbox check on, verify_email also asks the mail server ' +
+  'whether the exact mailbox exists (checks.mailbox: exists, not-found, full, catch-all, unknown); otherwise "valid" means the address ' +
+  'and domain look deliverable, not that the mailbox was confirmed.';
 
 /** The tools Email Chekkr offers to AI apps. */
 export function toolDefinitions(batchMax, csvMaxRows = 10_000) {
@@ -18,7 +20,7 @@ export function toolDefinitions(batchMax, csvMaxRows = 10_000) {
     {
       name: 'verify_email',
       title: 'Verify email',
-      description: 'Check one email address. Returns status (valid, risky, invalid, unknown), a 0–100 score, confidence (high, medium, low), provider_type (disposable, free, custom), the reason, a typo suggestion if any, and each check.',
+      description: 'Check one email address. Returns status (valid, risky, invalid, unknown), a 0–100 score, confidence (high, medium, low), provider_type (disposable, free, custom), the reason, a typo suggestion if any, and each check, including checks.mailbox when the server has the mailbox check on.',
       inputSchema: {
         type: 'object',
         properties: { email: { type: 'string', description: 'The email address to check' } },

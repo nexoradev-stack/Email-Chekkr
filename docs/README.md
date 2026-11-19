@@ -5,6 +5,7 @@ Short guides for using and running Email Chekkr. Start with the one that matches
 | Guide | Read it when… |
 |---|---|
 | 🚦 [Results explained](statuses.md) | you want to know what valid / risky / invalid / unknown, the score, confidence and each reason mean |
+| 📮 [Mailbox check](mailbox-check.md) | you want to confirm the exact mailbox exists, and need to know what server that takes |
 | 🧭 [Limitations](limitations.md) | you're deciding how much to trust a result |
 | 🤖 [Connect your AI tool (MCP)](mcp-setup.md) | you want Claude, Cursor or Gemini to check emails for you |
 | 🛠️ [Troubleshooting](troubleshooting.md) | something isn't working |

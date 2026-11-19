@@ -26,3 +26,28 @@ export const TLD_FIXES = {
   nte: 'net', ner: 'net', nett: 'net',
   ogr: 'org', orgg: 'org', irg: 'org'
 };
+
+/**
+ * Names people type when they don't want to give a real address (sample@, test@, fake@ …).
+ * Matched against the part before @, ignoring +tags, dots, dashes and underscores.
+ */
+export const PLACEHOLDER_LOCALS = new Set([
+  'sample', 'samples', 'example', 'examples', 'test', 'tests', 'testing', 'tester', 'testuser', 'testemail',
+  'fake', 'fakeemail', 'fakemail', 'dummy', 'dummyemail', 'demo', 'demouser', 'placeholder', 'temp', 'temporary',
+  'asdf', 'asdfgh', 'asdfghjkl', 'qwerty', 'qwertyuiop', 'zxcvbn', 'abc', 'abcd', 'abcde', 'abc123', 'xyz',
+  'foo', 'bar', 'foobar', 'baz', 'nobody', 'noone', 'none', 'null', 'nil', 'na', 'nomail', 'noemail',
+  'notreal', 'notanemail', 'invalid', 'spam', 'junk', 'trash', 'blah', 'whatever', 'someone', 'somebody',
+  'anonymous', 'anon', 'johndoe', 'janedoe', 'yourname', 'youremail', 'yourmail', 'myemail', 'email', 'emailaddress'
+]);
+
+/** True when the part before @ looks like a made-up placeholder rather than a real mailbox. */
+export function isPlaceholder(local) {
+  const base = String(local || '').toLowerCase().split('+')[0];
+  const plain = base.replace(/[._-]/g, '');
+  if (!plain) return false;
+  if (PLACEHOLDER_LOCALS.has(plain)) return true;
+  if (/^(test|sample|fake|dummy|demo|example|temp)\d+$/.test(plain)) return true; // test1, sample22
+  if (/^\d+$/.test(plain)) return true;                                          // 123456
+  if (/^(.)\1{2,}$/.test(plain)) return true;                                   // aaa, xxxx
+  return false;
+}

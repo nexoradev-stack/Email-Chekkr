@@ -127,7 +127,7 @@
                 </tbody>
               </table>
             </div>
-            <p>Results are <code>valid</code>, <code>risky</code>, <code>invalid</code> or <code>unknown</code>, with a score from 0 to 100, a <code>confidence</code> (<code>high</code>, <code>medium</code> or <code>low</code>) and a <code>provider_type</code> (<code>disposable</code>, <code>free</code> or <code>custom</code>). See <a href="./#results-title">what each result means</a>, or the <a href="https://github.com/nexoradev-stack/Email-Chekkr/blob/main/docs/statuses.md">full guide to every result and reason</a>.</p>
+            <p>Results are <code>valid</code>, <code>risky</code>, <code>invalid</code> or <code>unknown</code>, with a score from 0 to 100, a <code>confidence</code> (<code>high</code>, <code>medium</code> or <code>low</code>) and a <code>provider_type</code> (<code>disposable</code>, <code>free</code> or <code>custom</code>). When the server has the optional <a href="https://github.com/nexoradev-stack/Email-Chekkr/blob/main/docs/mailbox-check.md">mailbox check</a> on, <code>checks.mailbox</code> says whether the mail server confirmed the exact mailbox. See <a href="./#results-title">what each result means</a>, or the <a href="https://github.com/nexoradev-stack/Email-Chekkr/blob/main/docs/statuses.md">full guide to every result and reason</a>.</p>
 
             <h2 id="errors">Errors</h2>
             <p>Errors come back as <code>{"error": {"code": "...", "message": "..."}}</code>. Common codes: <code>invalid_input</code> (400), <code>batch_too_large</code> (400), <code>api_key_required</code> or <code>invalid_api_key</code> (401), <code>rate_limited</code> (429).</p>

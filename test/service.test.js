@@ -87,3 +87,25 @@ test('getStatistics: returns a copy that callers cannot change', async () => {
   service.getStatistics().by_status.valid = 999;
   assert.equal(service.getStatistics().by_status.valid, 0);
 });
+
+test('mailbox check: single checks ask the mail server, batches only when switched on', async () => {
+  const asked = [];
+  const mailbox = async (email) => { asked.push(email); return { mailbox: 'exists' }; };
+  const service = makeService({ mailbox });
+  assert.equal(service.mailboxCheck, true);
+  assert.equal((await service.verifyEmail('jane@example.com')).checks.mailbox, 'exists');
+  await service.verifyEmails(['sam@example.com']);
+  await service.verifyCsv('email\nalex@example.com\n');
+  assert.deepEqual(asked, ['jane@example.com']);
+
+  const all = makeService({ mailbox, mailboxInBatches: true });
+  await all.verifyEmails(['sam@example.com']);
+  assert.deepEqual(asked, ['jane@example.com', 'sam@example.com']);
+  assert.equal(all.getStatistics().mailboxes_checked, 1);
+  assert.deepEqual(all.getStatistics().mailbox_check, { enabled: true, in_batches: true });
+});
+
+test('mailbox check: off by default', () => {
+  assert.equal(makeService().mailboxCheck, false);
+  assert.deepEqual(makeService().getStatistics().mailbox_check, { enabled: false, in_batches: false });
+});

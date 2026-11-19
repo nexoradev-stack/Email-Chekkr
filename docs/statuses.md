@@ -21,8 +21,8 @@ The website, the API and the MCP tools all use the same engine, so a result is t
 
 The address is written correctly, the domain exists, it has a mail server, and there are no warning signs.
 
-- Score: **95** (mail server record found).
-- Confidence: **medium**. The domain is fine, but Email Chekkr never logs in to the mail server, so the exact mailbox isn't confirmed. See [limitations](limitations.md).
+- Score: **95** (mail server record found), confidence **medium**: the domain is fine, but the exact mailbox isn't confirmed.
+- With the [mailbox check](mailbox-check.md) on and the mail server confirming it: score **99**, confidence **high**, reason *Mailbox confirmed by the mail server*.
 
 **What to do:** send.
 
@@ -34,8 +34,13 @@ The domain takes email, but something is off. The reason tells you which:
 |---|---|---|---|
 | Possible typo — did you mean …? | −40 | medium | Fix the address with the suggestion, then check again |
 | Disposable (temporary) email domain | −60 | **high** | Remove. These inboxes disappear within hours or days |
+| Looks like a placeholder address (like test@ or sample@), not a real person | −45 | medium | Ask for a real address; these are usually typed to skip a form |
 | Role address (reaches a team, not a person) | −25 | medium | Keep for business mail; leave out of marketing sends |
 | No mail server record; delivery may fail | starts at 75 | medium | Send carefully, or leave out of big sends |
+| Mailbox is full, so email will bounce for now ¹ | −40 | medium | Try again in a few days |
+| Domain accepts every address (catch-all), so this mailbox can't be confirmed ¹ | −20 | medium | Send carefully; there's no way to confirm it |
+
+¹ Only when the [mailbox check](mailbox-check.md) is on.
 
 When more than one applies, the score drops for each, and the reason shows the most important one, in the order above.
 
@@ -46,6 +51,7 @@ When more than one applies, the score drops for each, and the reason shows the m
 | Format problems (see below) | 0 | The address is not written correctly |
 | Domain does not exist | 5 | Nobody owns the domain, or it was mistyped |
 | Domain does not accept email | 10 | The domain says it never takes mail (null MX), or has no mail server and no address record |
+| Mailbox does not exist (the mail server said so) | 5 | Only with the [mailbox check](mailbox-check.md) on: the mail server said there's no such user |
 
 Confidence is always **high**. **What to do:** remove, or fix it if there's a suggestion.
 
@@ -83,10 +89,10 @@ Confidence is separate from the score. The score says *how safe the address is*;
 | Confidence | When |
 |---|---|
 | **high** | The evidence is clear: badly formed, domain doesn't exist, domain refuses email, or a known temporary inbox |
-| **medium** | The domain looks fine, or a soft warning applies (typo, team address, no MX record). Every **valid** result is medium, because the mailbox itself isn't checked |
+| **medium** | The domain looks fine, or a soft warning applies (typo, placeholder, team address, no MX record, catch-all). A **valid** result is medium unless the mailbox check confirmed the mailbox |
 | **low** | The lookup didn't answer, so we can't tell yet |
 
-> When optional mailbox (SMTP) checks are added in a later version, a confirmed mailbox will raise confidence to high.
+> With the [mailbox check](mailbox-check.md) on, a confirmed mailbox raises confidence to **high**, and "no such user" from the mail server is **high**-confidence invalid.
 
 ## Provider type
 
@@ -126,5 +132,7 @@ Cells that start with `=`, `+`, `-` or `@` get a `'` in front, so Excel and Goog
 | `disposable` | `true` / `false` |
 | `role` | `true` / `false` |
 | `free` | `true` / `false` |
+| `placeholder` | `true` when the part before @ looks made up (`test`, `sample`, `fake`, `asdf`, `123456` …) |
+| `mailbox` | `exists`, `not-found`, `full`, `catch-all`, `unknown` or `not-checked`. See [mailbox check](mailbox-check.md) |
 
 `mx` values: **mx** has a mail server · **a-fallback** no MX record but has an address record · **null-mx** says it never accepts email · **no-mail** no mail server and no address record · **nxdomain** domain doesn't exist · **error** lookup timed out · **not-checked** the address was badly formed, so no lookup was made.

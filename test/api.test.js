@@ -106,7 +106,7 @@ test('service: domain check', async () => {
 test('API: health, version, home and 404', async () => {
   const api = await startApi();
   try {
-    assert.deepEqual(await (await api.get('/health')).json(), { status: 'ok' });
+    assert.deepEqual(await (await api.get('/health')).json(), { status: 'ok', mailbox_check: false });
     assert.equal((await (await api.get('/version')).json()).name, 'email-chekkr');
     assert.ok((await (await api.get('/')).json()).endpoints.length >= 4);
     const missing = await api.get('/nope');
@@ -285,4 +285,15 @@ test('settings use the EMAIL_CHEKKR_ prefix', () => {
   const c = loadConfig({ EMAIL_CHEKKR_API_KEYS: 'k1,k2', EMAIL_CHEKKR_PUBLIC_RATE_LIMIT: '7' });
   assert.deepEqual([...c.apiKeys], ['k1', 'k2']);
   assert.equal(c.limits.publicPerWindow, 7);
+});
+
+test('settings: mailbox check is off by default and reads its settings', () => {
+  const off = loadConfig({});
+  assert.equal(off.smtp.enabled, false);
+  assert.equal(off.smtp.port, 25);
+  assert.equal(off.smtp.inBatches, false);
+  const on = loadConfig({ EMAIL_CHEKKR_SMTP_ENABLED: 'true', EMAIL_CHEKKR_SMTP_HELO: 'verify.example.com', EMAIL_CHEKKR_SMTP_FROM: 'verify@example.com', EMAIL_CHEKKR_SMTP_TIMEOUT_MS: '5000' });
+  assert.equal(on.smtp.enabled, true);
+  assert.equal(on.smtp.helo, 'verify.example.com');
+  assert.equal(on.smtp.timeoutMs, 5000);
 });

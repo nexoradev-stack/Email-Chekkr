@@ -162,11 +162,11 @@ export function createApp({ config, service, log = () => {}, now = Date.now }) {
       return send(res, 200, {
         name: SERVER_INFO.title,
         version: SERVER_INFO.version,
-        docs: 'https://nexoradev-stack.github.io/Email Chekkr-Email-verification/api.html',
+        docs: 'https://nexoradev-stack.github.io/Email-Chekkr/api.html',
         endpoints: ['GET /v1/verify?email=', 'POST /v1/verify', 'POST /v1/verify/batch', 'GET /v1/domain?domain=', 'POST /mcp']
       });
     }
-    if (pathname === '/health' && method === 'GET') return send(res, 200, { status: 'ok' });
+    if (pathname === '/health' && method === 'GET') return send(res, 200, { status: 'ok', mailbox_check: Boolean(service.mailboxCheck) });
     if (pathname === '/version' && method === 'GET') return send(res, 200, { name: SERVER_INFO.name, version: SERVER_INFO.version });
 
     if (pathname === '/v1/verify' && (method === 'GET' || method === 'POST')) {

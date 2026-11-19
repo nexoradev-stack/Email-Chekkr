@@ -65,6 +65,22 @@ export function loadConfig(env = process.env) {
     // Behind Render/Railway/Cloud Run the client IP comes from X-Forwarded-For
     trustProxy: bool(env.EMAIL_CHEKKR_TRUST_PROXY, true),
 
+    // Mailbox check over SMTP (port 25). Off by default; see docs/mailbox-check.md.
+    smtp: {
+      enabled: bool(env.EMAIL_CHEKKR_SMTP_ENABLED, false),
+      // The name this server gives mail servers. Must match the server's reverse DNS (PTR) record.
+      helo: env.EMAIL_CHEKKR_SMTP_HELO || '',
+      // The sender address used in MAIL FROM. Use a real mailbox on a domain you own; nothing is sent.
+      from: env.EMAIL_CHEKKR_SMTP_FROM || '',
+      port: int(env.EMAIL_CHEKKR_SMTP_PORT, 25, { min: 1, max: 65535 }),
+      timeoutMs: int(env.EMAIL_CHEKKR_SMTP_TIMEOUT_MS, 10_000, { min: 1000, max: 60_000 }),
+      catchAllProbe: bool(env.EMAIL_CHEKKR_SMTP_CATCH_ALL, true),
+      maxPerDomain: int(env.EMAIL_CHEKKR_SMTP_MAX_PER_DOMAIN, 2, { min: 1, max: 10 }),
+      // Batches and CSV files can hold thousands of addresses; checking each mailbox is slow,
+      // so by default only single checks (and verify_email) ask the mail server.
+      inBatches: bool(env.EMAIL_CHEKKR_SMTP_IN_BATCHES, false)
+    },
+
     disposablePath: env.EMAIL_CHEKKR_DISPOSABLE_PATH || null,
     freeProvidersPath: env.EMAIL_CHEKKR_FREE_PROVIDERS_PATH || null
   };

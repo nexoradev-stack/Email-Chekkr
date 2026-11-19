@@ -27,6 +27,9 @@ services:
         value: "500"
       - key: EMAIL_CHEKKR_DNS_SERVERS
         value: 1.1.1.1,8.8.8.8
+      # Mailbox check needs outgoing port 25, which the free plan is unlikely to allow. See docs/mailbox-check.md.
+      - key: EMAIL_CHEKKR_SMTP_ENABLED
+        value: "false"
       # One API key is generated for you; see it under Environment in Render. Add more separated by commas.
       - key: EMAIL_CHEKKR_API_KEYS
         generateValue: true

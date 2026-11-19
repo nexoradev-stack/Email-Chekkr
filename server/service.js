@@ -22,21 +22,26 @@ const emptyCounts = () => ({ valid: 0, risky: 0, invalid: 0, unknown: 0 });
 
 /**
  * @param {{ resolve: Function, disposable: Set<string>, freeProviders?: Set<string>, concurrency?: number,
- *   cacheTtlMs?: number, cacheMax?: number, csvMaxRows?: number, now?: () => number }} deps
+ *   cacheTtlMs?: number, cacheMax?: number, csvMaxRows?: number, now?: () => number,
+ *   mailbox?: Function | null, mailboxInBatches?: boolean }} deps
+ *   mailbox: the SMTP mailbox checker from smtp.js, or null when the mailbox check is off.
  */
 export function createService({
-  resolve, disposable, freeProviders = new Set(), concurrency = 10, cacheTtlMs, cacheMax, csvMaxRows = 10_000, now = Date.now
+  resolve, disposable, freeProviders = new Set(), concurrency = 10, cacheTtlMs, cacheMax, csvMaxRows = 10_000, now = Date.now,
+  mailbox = null, mailboxInBatches = false
 }) {
-  const verifier = createVerifier({ resolve, disposable, freeProviders, cacheTtlMs, cacheMax });
+  const verifier = createVerifier({ resolve, disposable, freeProviders, mailbox, cacheTtlMs, cacheMax });
+  const batchOptions = { checkMailbox: mailboxInBatches };
 
   // Running totals since the server started (kept in memory only; no addresses are stored).
   const startedAt = now();
-  const stats = { emails_checked: 0, domains_checked: 0, csv_files_checked: 0, by_status: emptyCounts() };
+  const stats = { emails_checked: 0, domains_checked: 0, csv_files_checked: 0, mailboxes_checked: 0, by_status: emptyCounts() };
 
   function count(results) {
     for (const r of results) {
       stats.emails_checked += 1;
       stats.by_status[r.status] += 1;
+      if (r.checks?.mailbox && r.checks.mailbox !== 'not-checked') stats.mailboxes_checked += 1;
     }
   }
 
@@ -56,7 +61,7 @@ export function createService({
   /** Checks many addresses; results keep the input order, with a summary of counts. */
   async function verifyEmails(emails) {
     const started = now();
-    const results = await runPool(emails, (e) => verifier.verify(e), { concurrency });
+    const results = await runPool(emails, (e) => verifier.verify(e, batchOptions), { concurrency });
     count(results);
     return { summary: summarize(results), results, took_ms: now() - started };
   }
@@ -78,7 +83,7 @@ export function createService({
     if (data.length > csvMaxRows) return { error: `The CSV has ${data.length} rows; the limit is ${csvMaxRows} per call. Split the file and try again.` };
 
     const header = hasHeader ? rows[0] : rows[0].map((_, i) => (i === index ? 'email' : `column_${i + 1}`));
-    const results = await runPool(data.map((r) => r[index] ?? ''), (e) => verifier.verify(e), { concurrency });
+    const results = await runPool(data.map((r) => r[index] ?? ''), (e) => verifier.verify(e, batchOptions), { concurrency });
     count(results);
     stats.csv_files_checked += 1;
 
@@ -139,11 +144,12 @@ export function createService({
     return {
       ...structuredClone(stats),
       domains_in_cache: verifier.cacheSize(),
+      mailbox_check: { enabled: Boolean(mailbox), in_batches: Boolean(mailbox) && mailboxInBatches },
       lists: { disposable_domains: disposable.size, free_providers: freeProviders.size },
       uptime_seconds: Math.round((now() - startedAt) / 1000),
       started_at: new Date(startedAt).toISOString()
     };
   }
 
-  return { verifyEmail, verifyEmails, verifyCsv, checkDomain, getStatistics };
+  return { verifyEmail, verifyEmails, verifyCsv, checkDomain, getStatistics, mailboxCheck: Boolean(mailbox) };
 }

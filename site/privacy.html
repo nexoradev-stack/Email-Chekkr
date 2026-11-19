@@ -52,14 +52,15 @@
   <main id="main">
     <div class="page">
       <div class="wrap">
-        <div class="page-head"><span class="eyebrow">Legal</span><h1>Privacy policy</h1><p class="updated">Last updated: 11 November 2026</p></div>
+        <div class="page-head"><span class="eyebrow">Legal</span><h1>Privacy policy</h1><p class="updated">Last updated: 19 November 2026</p></div>
         <div class="prose">
           <h2>The short version</h2>
-          <p>Email Chekkr doesn't collect, store or share the email addresses you check. Checks run in your browser.</p>
+          <p>Email Chekkr doesn't collect, store or share the email addresses you check. Checks run in your browser; only the optional mailbox check on single addresses uses our server, which doesn't keep them.</p>
           <h2>What happens when you check an address</h2>
           <ul>
             <li>The address and any CSV file you choose are read by your browser only. They are not uploaded to Email Chekkr.</li>
             <li>To see if a domain receives email, your browser asks a public DNS-over-HTTPS service about the domain only — for example <span class="mono">example.com</span>, never <span class="mono">jane@example.com</span>. Email Chekkr uses Google Public DNS, with Cloudflare DNS as a backup. Their own privacy policies apply to those lookups.</li>
+            <li><strong>Mailbox check (single checks only, when switched on):</strong> to confirm that the exact mailbox exists, the address you type is sent to the Email Chekkr API, which asks that domain's mail server whether it would accept mail for it. No email is sent, and the API does not store or log the address. The page tells you when this happens. CSV lists are never sent.</li>
             <li>Results stay in your browser until you close the page or download them.</li>
           </ul>
           <h2>Contact and waitlist forms</h2>
