@@ -79,7 +79,7 @@ test('checker: mailbox exists, and no email is ever sent', async () => {
 test('checker: mailbox does not exist', async () => {
   const smtp = await fakeSmtp({ rcpt: () => '550-5.1.1 The email account that you tried to reach does not exist.\r\n550 5.1.1 Please try again.' });
   try {
-    const r = await createMailboxChecker(options(smtp.port))('sample@gmail.com', 'gmail.com', ['127.0.0.1']);
+    const r = await createMailboxChecker(options(smtp.port))('jane@gmail.com', 'gmail.com', ['127.0.0.1']);
     assert.equal(r.mailbox, MAILBOX.NOT_FOUND);
     assert.equal(r.code, 550);
     assert.match(r.message, /does not exist/);
