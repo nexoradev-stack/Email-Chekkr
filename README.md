@@ -11,7 +11,7 @@
 ![Node](https://img.shields.io/badge/node-20%2B-339933?style=flat-square&logo=node.js&logoColor=white)
 ![Dependencies](https://img.shields.io/badge/dependencies-none-5b4bdb?style=flat-square)
 
-[🌐 Website](https://nexoradev-stack.github.io/Email-Chekkr/) · [⚡ API docs](https://nexoradev-stack.github.io/Email-Chekkr/api.html) · [🏗️ Architecture](ARCHITECTURE.md) · [🚀 Run it locally](#-run-it-locally) · [🗺️ Roadmap](#️-roadmap) · [🙌 Credits](#-credits)
+[🌐 Website](https://nexoradev-stack.github.io/Email-Chekkr/) · [⚡ API docs](https://nexoradev-stack.github.io/Email-Chekkr/api.html) · [📚 Docs](docs/README.md) · [🤖 Connect your AI](docs/mcp-setup.md) · [🏗️ Architecture](ARCHITECTURE.md) · [🚀 Run it locally](#-run-it-locally) · [🗺️ Roadmap](#️-roadmap) · [🙌 Credits](#-credits)
 
 </div>
 
@@ -19,7 +19,7 @@
 
 ## ✨ What it does
 
-Paste an address, upload a CSV of up to 10,000 rows, call the API, or ask your AI assistant. Every address gets a result and a score from 0 to 100.
+Paste an address, upload a CSV of up to 10,000 rows, call the API, or ask your AI assistant. Every address gets a result, a score from 0 to 100, a confidence level (high, medium, low) and a provider type (disposable, free or custom).
 
 | Check | What it looks for |
 |---|---|
@@ -76,7 +76,7 @@ flowchart TB
 - 🌐 **Website:** checks run in the visitor's browser. CSV files are never uploaded. Lookups go to Google Public DNS (Cloudflare as a fallback).
 - ⚡ **API and 🤖 MCP:** a small Node.js server on Render that runs the same engine and uses Node's built-in DNS. No third-party verification service.
 - 🔒 **Privacy:** only the domain (for example `example.com`) is ever looked up — never the full address. The API never stores or logs addresses.
-- 🧾 **Safe downloads:** results are added as new CSV columns (`chekkr_status`, `chekkr_score`, `chekkr_reason`, `chekkr_suggestion`). Cells starting with `=`, `+`, `-` or `@` are escaped so spreadsheets don't run them as formulas.
+- 🧾 **Safe downloads:** results are added as new CSV columns (`chekkr_status`, `chekkr_score`, `chekkr_reason`, `chekkr_suggestion`, `chekkr_confidence`, `chekkr_provider`). Cells starting with `=`, `+`, `-` or `@` are escaped so spreadsheets don't run them as formulas.
 
 Full details, with a diagram for every part, are in **[🏗️ ARCHITECTURE.md](ARCHITECTURE.md)**.
 
@@ -91,8 +91,10 @@ Full details, with a diagram for every part, are in **[🏗️ ARCHITECTURE.md](
 | 🔴 **Invalid** | Badly formed, or the domain doesn't exist or doesn't accept email. |
 | ⚪ **Unknown** | The domain didn't answer in time. Check again later. |
 
+Each result also has a **confidence**: high when the evidence is clear, medium for valid addresses and soft warnings, low when the lookup timed out. Every reason, score and column is explained in **[docs/statuses.md](docs/statuses.md)**.
+
 > [!NOTE]
-> Email Chekkr doesn't log in to mail servers, so **"valid" means the address and its domain look deliverable**, not that the exact mailbox was confirmed.
+> Email Chekkr doesn't log in to mail servers, so **"valid" means the address and its domain look deliverable**, not that the exact mailbox was confirmed. See **[what it can't tell you](docs/limitations.md)**.
 
 ---
 
@@ -133,10 +135,17 @@ Day and month figures assume non-stop use. The free server is shared by everyone
 
 ### 🤖 MCP (AI tools)
 
-Tools: `verify_email`, `verify_emails_batch`, `check_domain`.
+| Tool | What it does |
+|---|---|
+| `verify_email` | Check one address |
+| `verify_emails_batch` | Check up to 500 addresses |
+| `verify_csv` | Check a whole CSV (up to 10,000 rows) and get it back with result columns |
+| `check_domain` | Check a domain |
+| `get_statistics` | Totals since the server started (no addresses kept) |
 
 - **Remote:** `https://email-chekkr-api.onrender.com/mcp` with `Authorization: Bearer <API key>`.
 - **Local:** `npm run mcp` (stdio). Example config: [`examples/mcp-config.json`](examples/mcp-config.json).
+- 👉 **Step-by-step setup for Claude Desktop, Claude Code, Cursor and Gemini CLI: [docs/mcp-setup.md](docs/mcp-setup.md)**
 
 ### ☁️ Deploy the API
 
@@ -167,12 +176,12 @@ Anything that runs Docker or Node 20+ works too (Railway, Fly.io, Google Cloud R
 Needs Node.js 20+ and Python 3 (for the website preview server). No `npm install` needed.
 
 ```bash
-npm test                 # 45 tests: engine, API, MCP (no network needed)
+npm test                 # 76 tests, one file per check (no network needed)
 npm run check:secrets    # scan for keys and personal emails
 npm run serve            # website at http://localhost:8080
 npm start                # API at http://localhost:8787
 npm run mcp              # MCP server over stdio
-npm run update:disposable  # refresh the disposable domain list
+npm run update:disposable  # refresh the disposable domain list (runs daily on GitLab, see docs)
 ```
 
 ### 🌐 Publish the website
@@ -191,8 +200,10 @@ site/                       the website (published to GitHub Pages)
 ├── bulk.html               bulk CSV check
 ├── pricing.html            plans and waitlist form
 ├── api.html                API and MCP docs
+├── about.html              why it exists, how it works, credits
 ├── contact.html            contact form
 ├── privacy.html  terms.html  404.html
+├── robots.txt  sitemap.xml
 └── assets/
     ├── css/styles.css
     ├── js/app.js           page behaviour, theme toggle, forms
@@ -202,24 +213,30 @@ site/                       the website (published to GitHub Pages)
     │   ├── typo.js         "did you mean …?" suggestions
     │   ├── dns.js          DNS-over-HTTPS lookups and MX logic
     │   ├── verify.js       combines the checks into a result and score
-    │   ├── lists.js        team addresses, free providers, typo targets
+    │   ├── lists.js        team addresses, typo targets, extension fixes
     │   └── csv.js          CSV reading/writing
-    ├── data/disposable-domains.txt
+    ├── data/disposable-domains.txt   temporary inbox services (refreshed daily)
+    ├── data/free-providers.txt       free mailbox providers (Gmail, Outlook …)
     ├── data/email-chekkr-sample.csv
-    └── img/                logo.svg, favicon.svg, icon-512.png
+    └── img/                logo.svg, favicon.svg, icon-512.png, og-image.jpg (link previews)
 server/                     the API and MCP server (Node built-ins only)
 ├── index.js                starts the HTTP server
 ├── app.js                  routes, API keys, CORS, limits
-├── service.js              verify one, verify many, check domain
+├── service.js              verify one, many or a CSV; check domain; statistics
 ├── node-dns.js             DNS lookups with Node's dns module
 ├── mcp.js  stdio.js        MCP tools; MCP over stdin/stdout
 └── rate-limit.js  config.js  runtime.js
-docs/assets/banner.svg      README banner
+docs/                       guides: results, limitations, troubleshooting, MCP setup, list updates
+├── assets/banner.svg       README banner
+└── assets/og-image.svg     source of the link-preview image
 examples/                   MCP config and API request examples
 scripts/                    disposable list refresh, secrets check
-test/                       engine, API and MCP tests
+test/                       one test file per check, plus helpers.js (fake DNS)
+.github/                    CI (tests, audit, Docker), Pages deploy, issue and PR templates
+.gitlab/  .gitlab-ci.yml    issue and merge request templates; daily disposable list update
 Dockerfile  render.yaml  .env.example
 ARCHITECTURE.md             how it all works, with diagrams
+CHANGELOG.md  CONTRIBUTING.md  SECURITY.md
 ```
 
 ---
@@ -230,7 +247,15 @@ ARCHITECTURE.md             how it all works, with diagrams
 |---|---|---|
 | 1 | 🌐 Website: single and bulk checks in the browser | ✅ Live |
 | 2 | ⚡ REST API and 🤖 MCP server for AI tools | ✅ Live |
-| 3 | 💳 Accounts, credits and payments (Razorpay), API keys in a database | 🕒 Planned — pricing to be confirmed |
+| 2.5 | 📚 Docs, confidence and provider type, `verify_csv` and `get_statistics` MCP tools, daily list updates | ✅ Done (v0.4.0) |
+| 3 | 📮 Optional mailbox (SMTP) and catch-all checks, off by default | 🕒 Planned — needs hosting that allows port 25 |
+| 4 | 💳 Accounts, credits and payments (Razorpay), API keys in a database | 🕒 Planned — pricing to be confirmed |
+
+---
+
+## 📚 More
+
+[Results explained](docs/statuses.md) · [Limitations](docs/limitations.md) · [Troubleshooting](docs/troubleshooting.md) · [MCP setup](docs/mcp-setup.md) · [Changelog](CHANGELOG.md) · [Contributing](CONTRIBUTING.md) · [Security](SECURITY.md)
 
 ---
 
