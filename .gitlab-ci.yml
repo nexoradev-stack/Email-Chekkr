@@ -1,0 +1,50 @@
+# Email Chekkr — GitLab pipeline.
+#
+# Only one job lives here: the daily refresh of the disposable (temporary inbox) domain list.
+# Tests, the Docker check and the website deploy run on GitHub Actions (see .github/workflows),
+# because GitLab pushes every change to the GitHub copy.
+#
+# What the job does, once a day:
+#   1. downloads the latest community list (npm run update:disposable)
+#   2. if nothing changed, stops
+#   3. runs the tests and the secrets scan
+#   4. pushes a branch and opens a merge request for you to review — it never changes main by itself
+#
+# One-time setup (all in the GitLab website) is in docs/disposable-list-updates.md:
+#   - a project access token saved as the CI/CD variable CHEKKR_BOT_TOKEN
+#   - a pipeline schedule (for example every day at 06:20)
+
+workflow:
+  rules:
+    # Run only from the schedule or the "Run pipeline" button, never on normal pushes
+    - if: $CI_PIPELINE_SOURCE == "schedule"
+    - if: $CI_PIPELINE_SOURCE == "web"
+
+update-disposable-domains:
+  image: node:22-alpine
+  before_script:
+    - apk add --no-cache git
+  script:
+    - |
+      if [ -z "$CHEKKR_BOT_TOKEN" ]; then
+        echo "CHEKKR_BOT_TOKEN is not set. See docs/disposable-list-updates.md."; exit 1
+      fi
+    - npm run update:disposable
+    - |
+      if git diff --quiet -- site/assets/data/disposable-domains.txt; then
+        echo "The list is already up to date. Nothing to do."; exit 0
+      fi
+    - npm test
+    - npm run check:secrets
+    - |
+      BRANCH="auto/disposable-domains-$(date -u +%Y-%m-%d)"
+      git config user.name "Email Chekkr bot"
+      git config user.email "email-chekkr-bot@users.noreply.gitlab.com"
+      git checkout -b "$BRANCH"
+      git add site/assets/data/disposable-domains.txt
+      git commit -m "Update disposable domain list ($(date -u +%Y-%m-%d))"
+      git push "https://oauth2:${CHEKKR_BOT_TOKEN}@${CI_SERVER_HOST}/${CI_PROJECT_PATH}.git" "HEAD:refs/heads/${BRANCH}" \
+        -o merge_request.create \
+        -o merge_request.target="${CI_DEFAULT_BRANCH}" \
+        -o merge_request.title="Update disposable domain list ($(date -u +%Y-%m-%d))" \
+        -o merge_request.remove_source_branch

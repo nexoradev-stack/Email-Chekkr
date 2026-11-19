@@ -1,4 +1,6 @@
-# Runs the engine, API and MCP tests on every push and pull request.
+# Runs on every push and pull request:
+#   1. tests on Node 20 and 22, the secrets scan and a security audit
+#   2. builds the Docker image, starts it and checks /health — the same image Render runs
 
 name: CI
 
@@ -29,3 +31,24 @@ jobs:
       run: npm run check:secrets
     - name: Run tests
       run: npm test
+    - name: Security audit (fails on high or critical issues)
+      run: npm audit --audit-level=high
+
+  docker:
+    runs-on: ubuntu-latest
+    needs: test
+    steps:
+    - uses: actions/checkout@v4
+    - name: Build the API image
+      run: docker build -t email-chekkr-api:ci .
+    - name: Start the image and check /health
+      run: |
+        docker run -d --name chekkr -p 8787:8787 email-chekkr-api:ci
+        for i in $(seq 1 20); do
+          if curl -fsS http://127.0.0.1:8787/health; then echo; echo "API is up"; exit 0; fi
+          sleep 1
+        done
+        echo "The API did not start. Logs:"; docker logs chekkr; exit 1
+    - name: Stop the container
+      if: always()
+      run: docker rm -f chekkr || true
