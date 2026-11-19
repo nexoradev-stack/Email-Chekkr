@@ -9,7 +9,7 @@ import { buildService, jsonLog } from './runtime.js';
 
 const config = loadConfig();
 const { service } = await buildService(config);
-const handle = createMcpHandler({ service, batchMax: config.limits.keyBatchMax });
+const handle = createMcpHandler({ service, batchMax: config.limits.keyBatchMax, csvMaxRows: config.limits.csvMaxRows });
 
 const write = (message) => process.stdout.write(`${JSON.stringify(message)}\n`);
 

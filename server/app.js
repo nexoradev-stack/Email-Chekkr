@@ -93,7 +93,7 @@ export function createApp({ config, service, log = () => {}, now = Date.now }) {
   const limiter = createRateLimiter({ windowMs: limits.windowMs, now });
   const isValidKey = makeKeyChecker(config.apiKeys);
   const anyOrigin = config.corsOrigins.includes('*');
-  const mcp = createMcpHandler({ service, batchMax: limits.keyBatchMax });
+  const mcp = createMcpHandler({ service, batchMax: limits.keyBatchMax, csvMaxRows: limits.csvMaxRows });
 
   function setCors(req, res) {
     const origin = req.headers.origin;

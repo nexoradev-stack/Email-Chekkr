@@ -45,7 +45,9 @@ export function loadConfig(env = process.env) {
       // With an API key: requests per window, per key
       keyPerWindow: int(env.EMAIL_CHEKKR_KEY_RATE_LIMIT, 120, { min: 1 }),
       keyBatchMax: int(env.EMAIL_CHEKKR_KEY_BATCH_MAX, 500, { min: 1, max: 1000 }),
-      maxBodyBytes: int(env.EMAIL_CHEKKR_MAX_BODY_BYTES, 1_000_000, { min: 1024 })
+      maxBodyBytes: int(env.EMAIL_CHEKKR_MAX_BODY_BYTES, 1_000_000, { min: 1024 }),
+      // MCP verify_csv: the most data rows checked in one call
+      csvMaxRows: int(env.EMAIL_CHEKKR_CSV_MAX_ROWS, 10_000, { min: 1, max: 100_000 })
     },
 
     dns: {
@@ -63,6 +65,7 @@ export function loadConfig(env = process.env) {
     // Behind Render/Railway/Cloud Run the client IP comes from X-Forwarded-For
     trustProxy: bool(env.EMAIL_CHEKKR_TRUST_PROXY, true),
 
-    disposablePath: env.EMAIL_CHEKKR_DISPOSABLE_PATH || null
+    disposablePath: env.EMAIL_CHEKKR_DISPOSABLE_PATH || null,
+    freeProvidersPath: env.EMAIL_CHEKKR_FREE_PROVIDERS_PATH || null
   };
 }
