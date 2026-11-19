@@ -29,6 +29,8 @@ Paste an address, upload a CSV of up to 10,000 rows, call the API, or ask your A
 | ⏳ **Temporary inbox** | Not one of 10,000+ known disposable services. |
 | 👥 **Person or team** | Not a team inbox like `info@`, `sales@` or `support@`. |
 | 🔤 **Typos** | `gmial.com` → "did you mean `gmail.com`?", `company.con` → `company.com`. |
+| 🎭 **Placeholders** | Made-up names like `test@`, `sample@`, `fake@` or `asdf@` are flagged as risky. |
+| 📮 **Mailbox** *(optional)* | Asks the mail server whether this exact mailbox exists, without sending anything. Off until you run the API on a server that allows port 25. See **[mailbox check](docs/mailbox-check.md)**. |
 
 ---
 
@@ -87,14 +89,14 @@ Full details, with a diagram for every part, are in **[🏗️ ARCHITECTURE.md](
 | Result | Meaning |
 |---|---|
 | 🟢 **Valid** | Well-formed, the domain has a mail server, no warning signs. |
-| 🟠 **Risky** | Takes email, but something's off: temporary inbox, team address, likely typo, or no MX record. |
-| 🔴 **Invalid** | Badly formed, or the domain doesn't exist or doesn't accept email. |
+| 🟠 **Risky** | Takes email, but something's off: temporary inbox, placeholder name, team address, likely typo, no MX record, or (with the mailbox check) catch-all or full. |
+| 🔴 **Invalid** | Badly formed, the domain doesn't exist or doesn't accept email, or (with the mailbox check) the mail server says there's no such mailbox. |
 | ⚪ **Unknown** | The domain didn't answer in time. Check again later. |
 
 Each result also has a **confidence**: high when the evidence is clear, medium for valid addresses and soft warnings, low when the lookup timed out. Every reason, score and column is explained in **[docs/statuses.md](docs/statuses.md)**.
 
 > [!NOTE]
-> Email Chekkr doesn't log in to mail servers, so **"valid" means the address and its domain look deliverable**, not that the exact mailbox was confirmed. See **[what it can't tell you](docs/limitations.md)**.
+> Without the optional [mailbox check](docs/mailbox-check.md), **"valid" means the address and its domain look deliverable**, not that the exact mailbox was confirmed. See **[what it can't tell you](docs/limitations.md)**.
 
 ---
 
@@ -225,6 +227,7 @@ server/                     the API and MCP server (Node built-ins only)
 ├── app.js                  routes, API keys, CORS, limits
 ├── service.js              verify one, many or a CSV; check domain; statistics
 ├── node-dns.js             DNS lookups with Node's dns module
+├── smtp.js                 optional mailbox check (asks the mail server, sends nothing)
 ├── mcp.js  stdio.js        MCP tools; MCP over stdin/stdout
 └── rate-limit.js  config.js  runtime.js
 docs/                       guides: results, limitations, troubleshooting, MCP setup, list updates
@@ -249,14 +252,15 @@ CHANGELOG.md  CONTRIBUTING.md  SECURITY.md
 | 1 | 🌐 Website: single and bulk checks in the browser | ✅ Live |
 | 2 | ⚡ REST API and 🤖 MCP server for AI tools | ✅ Live |
 | 2.5 | 📚 Docs, confidence and provider type, `verify_csv` and `get_statistics` MCP tools, daily list updates | ✅ Done (v0.4.0) |
-| 3 | 📮 Optional mailbox (SMTP) and catch-all checks, off by default | 🕒 Planned — needs hosting that allows port 25 |
+| 3 | 📮 Mailbox (SMTP) and catch-all checks, off by default; placeholder names flagged | ✅ Built — switch on once the API runs on a server that allows port 25 |
+| 3b | 💼 Optional paid verification service as a second opinion | 🕒 Later |
 | 4 | 💳 Accounts, credits and payments (Razorpay), API keys in a database | 🕒 Planned — pricing to be confirmed |
 
 ---
 
 ## 📚 More
 
-[Results explained](docs/statuses.md) · [Limitations](docs/limitations.md) · [Troubleshooting](docs/troubleshooting.md) · [MCP setup](docs/mcp-setup.md) · [Changelog](CHANGELOG.md) · [Contributing](CONTRIBUTING.md) · [Security](SECURITY.md)
+[Results explained](docs/statuses.md) · [Mailbox check](docs/mailbox-check.md) · [Limitations](docs/limitations.md) · [Troubleshooting](docs/troubleshooting.md) · [MCP setup](docs/mcp-setup.md) · [Changelog](CHANGELOG.md) · [Contributing](CONTRIBUTING.md) · [Security](SECURITY.md)
 
 ---
 

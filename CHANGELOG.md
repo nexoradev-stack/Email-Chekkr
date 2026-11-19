@@ -4,6 +4,15 @@ All notable changes to Email Chekkr. Newest first. Dates are in YYYY-MM-DD.
 
 ## [Unreleased]
 
+### Added
+- **Mailbox check (SMTP), off by default.** The API can ask the domain's mail server whether the exact mailbox exists (`checks.mailbox`: `exists`, `not-found`, `full`, `catch-all`, `unknown`), without sending any email. A confirmed mailbox is valid with score 99 and high confidence; "no such user" is invalid. Catch-all domains are spotted with a random-address probe. Needs a server that allows port 25; see `docs/mailbox-check.md`.
+- The website's single check uses the API's mailbox check when it's on, and says so next to the check. Bulk CSV checks stay in the browser.
+- **Placeholder names** like `test@`, `sample@`, `fake@`, `asdf@` and `123456@` are now risky (`checks.placeholder`), so made-up addresses at Gmail and similar providers no longer show as valid.
+- `/health` reports `mailbox_check`; `get_statistics` reports mailboxes checked.
+
+### Fixed
+- The API's home page (`GET /`) linked to an old docs address.
+
 ### Changed
 - The daily disposable list update now runs on **GitHub Actions** (`.github/workflows/update-disposable.yml`) and opens the merge request on GitLab. GitLab.com needs card verification to run jobs, so `.gitlab-ci.yml` is removed; this also stops the empty failed pipelines on GitLab.
 
