@@ -11,7 +11,7 @@
 
 import { checkSyntax } from './syntax.js';
 import { suggestDomain } from './typo.js';
-import { ROLE_ACCOUNTS } from './lists.js';
+import { ROLE_ACCOUNTS, isPlaceholder } from './lists.js';
 import { checkMailDomain } from './dns.js';
 
 /** Adds "did you mean …?" to a reason when there is a suggestion. */
@@ -67,10 +67,11 @@ export function parseDomainList(text) {
  * Creates a verifier.
  * @param {{ resolve: Function, disposable: Set<string>, freeProviders?: Set<string>, cacheTtlMs?: number, cacheMax?: number, now?: () => number }} deps
  *   freeProviders comes from site/assets/data/free-providers.txt (read it with parseDomainList).
+ *   mailbox (server only, optional) asks the mail server whether the mailbox exists; see server/smtp.js.
  *   cacheTtlMs / cacheMax keep a long-running server's domain cache fresh and bounded.
  *   The browser keeps the defaults (cache for the whole visit).
  */
-export function createVerifier({ resolve, disposable = new Set(), freeProviders = new Set(), cacheTtlMs = Infinity, cacheMax = Infinity, now = Date.now }) {
+export function createVerifier({ resolve, disposable = new Set(), freeProviders = new Set(), mailbox = null, cacheTtlMs = Infinity, cacheMax = Infinity, now = Date.now }) {
   const domainCache = new Map(); // domain -> { at, pending }
 
   function lookupDomain(asciiDomain) {
@@ -94,12 +95,12 @@ export function createVerifier({ resolve, disposable = new Set(), freeProviders 
    * @returns {Promise<{ email: string, status: string, score: number, confidence: 'high'|'medium'|'low',
    *   provider_type: 'disposable'|'free'|'custom'|null, reason: string, suggestion: string|null, checks: { syntax: boolean, domain: string|null, mx: string, disposable: boolean, role: boolean, free: boolean } }>}
    */
-  async function decide(input) {
+  async function decide(input, { checkMailbox = true } = {}) {
     const syntax = checkSyntax(input);
     const base = {
       email: syntax.email,
       suggestion: null,
-      checks: { syntax: syntax.ok, domain: syntax.asciiDomain || null, mx: 'not-checked', disposable: false, role: false, free: false }
+      checks: { syntax: syntax.ok, domain: syntax.asciiDomain || null, mx: 'not-checked', disposable: false, role: false, free: false, placeholder: false, mailbox: 'not-checked' }
     };
 
     if (!syntax.ok) {
@@ -113,6 +114,7 @@ export function createVerifier({ resolve, disposable = new Set(), freeProviders 
       ...base.checks,
       disposable: isDisposable(domain, disposable),
       role: ROLE_ACCOUNTS.has(localLower.split('+')[0]),
+      placeholder: isPlaceholder(localLower),
       free: freeProviders.has(domain)
     };
     const dns = await lookupDomain(domain);
@@ -134,25 +136,41 @@ export function createVerifier({ resolve, disposable = new Set(), freeProviders 
       return { ...base, checks, suggestion: suggestedEmail, status: STATUS.UNKNOWN, score: 50, reason: 'Domain lookup timed out — try again' };
     }
 
+    // Optional: ask the mail server whether this exact mailbox exists (API only, when switched on)
+    let box = null;
+    if (mailbox && checkMailbox && !checks.disposable) {
+      box = await mailbox(syntax.email, domain, dns.mx.length ? dns.mx : [domain]);
+      checks.mailbox = box.mailbox;
+      if (box.mailbox === 'not-found') {
+        return { ...base, checks, suggestion: suggestedEmail, status: STATUS.INVALID, score: 5, reason: withHint('Mailbox does not exist (the mail server said so)', suggestedEmail) };
+      }
+    }
+
     // The domain can receive mail. Look for risk signals.
     let score = dns.result === 'mx' ? 95 : 75;
     const risks = [];
+    if (box?.mailbox === 'full') { score -= 40; risks.push('Mailbox is full, so email will bounce for now'); }
     if (suggestedEmail) { score -= 40; risks.push(`Possible typo — did you mean ${suggestedEmail}?`); }
     if (checks.disposable) { score -= 60; risks.push('Disposable (temporary) email domain'); }
+    if (checks.placeholder) { score -= 45; risks.push('Looks like a placeholder address (like test@ or sample@), not a real person'); }
     if (checks.role) { score -= 25; risks.push('Role address (reaches a team, not a person)'); }
     if (dns.result === 'a-fallback') risks.push('No mail server record; delivery may fail');
+    if (box?.mailbox === 'catch-all') { score -= 20; risks.push("Domain accepts every address (catch-all), so this mailbox can't be confirmed"); }
 
     score = Math.max(1, Math.min(100, score));
 
     if (risks.length) {
       return { ...base, checks, suggestion: suggestedEmail, status: STATUS.RISKY, score, reason: risks[0] };
     }
+    if (box?.mailbox === 'exists') {
+      return { ...base, checks, status: STATUS.VALID, score: 99, reason: 'Mailbox confirmed by the mail server' };
+    }
     return { ...base, checks, status: STATUS.VALID, score, reason: 'Address and domain look deliverable' };
   }
 
   /** Verifies one address and adds confidence and provider_type next to the score. */
-  async function verify(input) {
-    const r = await decide(input);
+  async function verify(input, options) {
+    const r = await decide(input, options);
     return { ...r, confidence: confidenceFor(r), provider_type: providerType(r.checks) };
   }
 
@@ -165,6 +183,7 @@ export function confidenceFor(result) {
   if (status === STATUS.UNKNOWN) return CONFIDENCE.LOW;
   if (status === STATUS.INVALID) return CONFIDENCE.HIGH;
   if (status === STATUS.RISKY && checks.disposable) return CONFIDENCE.HIGH;
+  if (status === STATUS.VALID && checks.mailbox === 'exists') return CONFIDENCE.HIGH;
   return CONFIDENCE.MEDIUM;
 }
 

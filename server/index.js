@@ -7,7 +7,7 @@ import { createApp } from './app.js';
 import { buildService, jsonLog } from './runtime.js';
 
 const config = loadConfig();
-const { service, disposableCount, freeProviderCount } = await buildService(config);
+const { service, disposableCount, freeProviderCount, mailboxCheck } = await buildService(config);
 const app = createApp({ config, service, log: jsonLog });
 
 const server = createServer(app);
@@ -23,6 +23,7 @@ server.listen(config.port, config.host, () => {
     url: `http://${config.host === '0.0.0.0' ? 'localhost' : config.host}:${port}`,
     disposable_domains: disposableCount,
     free_providers: freeProviderCount,
+    mailbox_check: mailboxCheck,
     api_keys: config.apiKeys.size,
     public_access: config.publicAccess
   });
